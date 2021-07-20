@@ -28,6 +28,7 @@ Players can keep track of their rolls from the different banners available in th
 A: No, Ascension is a standalone application that doesn't interact with Genshin Impacts' files in any way.
 
 **Q: What does the app offer?**
+
 A:
  * A simple visualization of Characters material needed for different Ascension Phases
  * A simple visualization of Weapon materials needed (Coming soon)
