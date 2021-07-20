@@ -23,11 +23,11 @@ Players can keep track of their rolls from the different banners available in th
 
 # F.A.Q
 
-Q: Can you get banned for using this app?
+Q: **Can you get banned for using this app?**
 
 A: No, Ascension is a standalone application that doesn't interact with Genshin Impacts' files in any way.
 
-Q: How can I keep the application over my game for easier use?
+Q: **How can I keep the application over my game for easier use?**
 
 A: Pressing F5 makes the application be Always On Top. In order for this to work, the game needs to be run in Borderless Window. [Here](http://github.com) you can find two ways to make the game Borderless.
 
