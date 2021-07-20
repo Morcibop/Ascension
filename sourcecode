@@ -1,0 +1,3728 @@
+package ascencion;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Hashtable;
+import java.awt.Toolkit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.basic.ComboPopup;
+import org.ini4j.*;
+
+
+public class GUI extends javax.swing.JFrame {
+    
+    
+    String directory = System.getProperty("user.dir");
+    Wini rolls = new Wini(new File(directory+"/rolls.ini"));
+    
+    
+    int StdMegaPity = rolls.get("Standard", "Mega Pity", int.class);
+    int StdMiniPity = rolls.get("Standard", "Mini Pity", int.class);
+    int StdTotal = rolls.get("Standard", "Total", int.class);
+    int ChMegaPity = rolls.get("Character", "Mega Pity", int.class);
+    int ChMiniPity = rolls.get("Character", "Mini Pity", int.class);
+    int ChTotal = rolls.get("Character", "Total", int.class);
+    int WpMegaPity = rolls.get("Weapon", "Mega Pity", int.class);
+    int WpMiniPity = rolls.get("Weapon", "Mini Pity", int.class);
+    int WpTotal = rolls.get("Weapon", "Total", int.class);
+    
+    int count;
+    
+    Font nbt;
+    
+    boolean AoT = false;
+    
+    public GUI() throws Exception {
+        initComponents();
+        
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/icon.png")));
+        
+        StMegaPity.setText(""+StdMegaPity);
+        StMiniPity.setText(""+StdMiniPity);
+        StTotal.setText(""+StdTotal);
+        CharMegaPity.setText(""+ChMegaPity);
+        CharMiniPity.setText(""+ChMiniPity);
+        CharTotal.setText(""+ChTotal);
+        WeapMegaPity.setText(""+WpMegaPity);
+        WeapMiniPity.setText(""+WpMiniPity);
+        WeapTotal.setText(""+WpTotal);
+        
+        
+        
+        //Custom Font
+        try{
+            // load a custom font in your project folder
+                InputStream unbt = GUI.class.getResourceAsStream("/resources/big_noodle_titling.ttf");
+                nbt = Font.createFont(Font.TRUETYPE_FONT, unbt).deriveFont(16.5f);	
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, unbt));		
+            }
+            catch(IOException | FontFormatException e){
+            }
+        
+        lAscencion.setFont(nbt);
+        lWeapons.setFont(nbt);
+        lInfo.setFont(nbt);
+        lRolls.setFont(nbt);
+        charSelected.setFont(nbt);
+        lSliver.setFont(nbt);
+        lFragment.setFont(nbt);
+        lChunk.setFont(nbt);
+        lGemstone.setFont(nbt);
+        lBoss.setFont(nbt);
+        lTalent1.setFont(nbt);
+        lTalent2.setFont(nbt);
+        lTalent3.setFont(nbt);
+        lTalent4.setFont(nbt);
+        lTalent5.setFont(nbt);
+        lCommon1.setFont(nbt);
+        lCommon2.setFont(nbt);
+        lCommon3.setFont(nbt);
+        lSpecialty.setFont(nbt);
+        
+        Menu.setVisible(false);
+        Tabs.setVisible(false);
+        lDogeText.setVisible(false);
+        lArrow.setVisible(false);
+        
+        Hashtable<Integer, JLabel> labels = new Hashtable<>();
+        
+        JLabel phaseOne = new JLabel("20");
+        phaseOne.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(0, phaseOne);
+        
+        JLabel phaseTwo = new JLabel("40");
+        phaseTwo.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(1, phaseTwo);
+        
+        JLabel phaseThree = new JLabel("50");
+        phaseThree.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(2, phaseThree);
+        
+        JLabel phaseFour = new JLabel("60");
+        phaseFour.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(3, phaseFour);
+        
+        JLabel phaseFive = new JLabel("70");
+        phaseFive.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(4, phaseFive);
+        
+        JLabel phaseSix = new JLabel("80");
+        phaseSix.setFont(lAscencion.getFont().deriveFont(16.0f));
+        labels.put(5, phaseSix);
+        
+        sPhase.setLabelTable(labels);
+        
+        charList.setUI(new BasicComboBoxUI() {
+            @Override
+            protected ComboPopup createPopup() {
+                return new BasicComboPopup(comboBox) {
+                    @Override
+                    protected JScrollPane createScroller() {
+                        JScrollPane scroller = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                        scroller.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+                            @Override
+                            protected JButton createDecreaseButton(int orientation) {
+                                return createZeroButton();
+                            }
+
+                            @Override
+                            protected JButton createIncreaseButton(int orientation) {
+                                return createZeroButton();
+                            }
+
+                            @Override
+                            public Dimension getPreferredSize(JComponent c) {
+                                return new Dimension(0, super.getPreferredSize(c).height);
+                            }
+
+                            private JButton createZeroButton() {
+                                return new JButton() {
+                                    @Override
+                                    public Dimension getMinimumSize() {
+                                        return new Dimension(new Dimension(0, 0));
+                                    }
+
+                                    @Override
+                                    public Dimension getPreferredSize() {
+                                        return new Dimension(new Dimension(0, 0));
+                                    }
+
+                                    @Override
+                                    public Dimension getMaximumSize() {
+                                        return new Dimension(new Dimension(0, 0));
+                                    }
+                                };
+                            }
+                        });
+                        return scroller;
+                    }
+                };
+            }
+        });
+        
+        cardPane.getVerticalScrollBar().setUnitIncrement(16);
+        
+        
+        ((JLabel)charList.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+    }
+    
+    /**
+     * This method is called from within the constructor to initialise the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        Menu = new javax.swing.JPanel();
+        Ascencion = new javax.swing.JPanel();
+        lAscencion = new javax.swing.JLabel();
+        Weapons = new javax.swing.JPanel();
+        lWeapons = new javax.swing.JLabel();
+        Info = new javax.swing.JPanel();
+        lInfo = new javax.swing.JLabel();
+        Rolls = new javax.swing.JPanel();
+        lRolls = new javax.swing.JLabel();
+        Tabs = new javax.swing.JPanel();
+        pAscencion = new javax.swing.JPanel();
+        cardPane = new javax.swing.JScrollPane();
+        pCards = new javax.swing.JPanel();
+        cAlbedo = new javax.swing.JLabel();
+        cAmber = new javax.swing.JLabel();
+        cAyaka = new javax.swing.JLabel();
+        cBarbara = new javax.swing.JLabel();
+        cBeidou = new javax.swing.JLabel();
+        cBennett = new javax.swing.JLabel();
+        cChongyun = new javax.swing.JLabel();
+        cDiluc = new javax.swing.JLabel();
+        cDiona = new javax.swing.JLabel();
+        cEula = new javax.swing.JLabel();
+        cFischl = new javax.swing.JLabel();
+        cGanyu = new javax.swing.JLabel();
+        cHuTao = new javax.swing.JLabel();
+        cJean = new javax.swing.JLabel();
+        cKaeya = new javax.swing.JLabel();
+        cKazuha = new javax.swing.JLabel();
+        cKeqing = new javax.swing.JLabel();
+        cKlee = new javax.swing.JLabel();
+        cLisa = new javax.swing.JLabel();
+        cMona = new javax.swing.JLabel();
+        cNingguang = new javax.swing.JLabel();
+        cNoelle = new javax.swing.JLabel();
+        cQiqi = new javax.swing.JLabel();
+        cRazor = new javax.swing.JLabel();
+        cRosaria = new javax.swing.JLabel();
+        cSayu = new javax.swing.JLabel();
+        cSucrose = new javax.swing.JLabel();
+        cTartaglia = new javax.swing.JLabel();
+        cTraveler = new javax.swing.JLabel();
+        cVenti = new javax.swing.JLabel();
+        cXiangling = new javax.swing.JLabel();
+        cXiao = new javax.swing.JLabel();
+        cXingqiu = new javax.swing.JLabel();
+        cXinyan = new javax.swing.JLabel();
+        cYanfei = new javax.swing.JLabel();
+        cYoimiya = new javax.swing.JLabel();
+        cZhongli = new javax.swing.JLabel();
+        cardBackground = new javax.swing.JLabel();
+        lSliver = new javax.swing.JLabel();
+        lFragment = new javax.swing.JLabel();
+        lChunk = new javax.swing.JLabel();
+        lGemstone = new javax.swing.JLabel();
+        lBoss = new javax.swing.JLabel();
+        lTalent1 = new javax.swing.JLabel();
+        lTalent2 = new javax.swing.JLabel();
+        lTalent3 = new javax.swing.JLabel();
+        lTalent4 = new javax.swing.JLabel();
+        lTalent5 = new javax.swing.JLabel();
+        lCommon1 = new javax.swing.JLabel();
+        lCommon2 = new javax.swing.JLabel();
+        lCommon3 = new javax.swing.JLabel();
+        lSpecialty = new javax.swing.JLabel();
+        sPhase = new javax.swing.JSlider();
+        bList = new javax.swing.JButton();
+        charSelected = new javax.swing.JLabel();
+        charList = new javax.swing.JComboBox<>();
+        bAscencion = new javax.swing.JLabel();
+        bWeapons = new javax.swing.JLabel();
+        pInfo = new javax.swing.JPanel();
+        bChar = new javax.swing.JButton();
+        bTalents = new javax.swing.JButton();
+        infoChar = new javax.swing.JLabel();
+        infoTalents = new javax.swing.JLabel();
+        bInfo = new javax.swing.JLabel();
+        pRolls = new javax.swing.JPanel();
+        StAddRoll = new javax.swing.JLabel();
+        StMegaPity = new javax.swing.JLabel();
+        StMiniPity = new javax.swing.JLabel();
+        StTotal = new javax.swing.JLabel();
+        StSet = new javax.swing.JLabel();
+        StReset = new javax.swing.JLabel();
+        StMiniReset = new javax.swing.JLabel();
+        StMegaReset = new javax.swing.JLabel();
+        CharAddRoll = new javax.swing.JLabel();
+        CharMegaPity = new javax.swing.JLabel();
+        CharMiniPity = new javax.swing.JLabel();
+        CharTotal = new javax.swing.JLabel();
+        CharSet = new javax.swing.JLabel();
+        CharReset = new javax.swing.JLabel();
+        CharMiniReset = new javax.swing.JLabel();
+        CharMegaReset = new javax.swing.JLabel();
+        WeapAddRoll = new javax.swing.JLabel();
+        WeapMegaPity = new javax.swing.JLabel();
+        WeapMiniPity = new javax.swing.JLabel();
+        WeapTotal = new javax.swing.JLabel();
+        WeapSet = new javax.swing.JLabel();
+        WeapReset = new javax.swing.JLabel();
+        WeapMiniReset = new javax.swing.JLabel();
+        WeapMegaReset = new javax.swing.JLabel();
+        lDoge = new javax.swing.JLabel();
+        lArrow = new javax.swing.JLabel();
+        bDoge = new javax.swing.JLabel();
+        lDogeText = new javax.swing.JLabel();
+        bRolls = new javax.swing.JLabel();
+        bSplash = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Ascension");
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setMaximumSize(null);
+        setName("frame"); // NOI18N
+        setResizable(false);
+        setSize(new java.awt.Dimension(728, 401));
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Menu.setAlignmentX(0.0F);
+        Menu.setAlignmentY(0.0F);
+        Menu.setMaximumSize(null);
+        Menu.setPreferredSize(new java.awt.Dimension(728, 50));
+
+        Ascencion.setBackground(new java.awt.Color(255, 255, 255));
+        Ascencion.setAlignmentX(0.0F);
+        Ascencion.setAlignmentY(0.0F);
+        Ascencion.setMinimumSize(new java.awt.Dimension(182, 50));
+        Ascencion.setPreferredSize(new java.awt.Dimension(182, 50));
+        Ascencion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AscencionMouseClicked(evt);
+            }
+        });
+
+        lAscencion.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lAscencion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lAscencion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Ascencion.png"))); // NOI18N
+        lAscencion.setText("ASCENCION");
+        lAscencion.setAlignmentY(0.0F);
+        lAscencion.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lAscencion.setIconTextGap(-1);
+        lAscencion.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        lAscencion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lAscencionMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout AscencionLayout = new javax.swing.GroupLayout(Ascencion);
+        Ascencion.setLayout(AscencionLayout);
+        AscencionLayout.setHorizontalGroup(
+            AscencionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AscencionLayout.createSequentialGroup()
+                .addGap(55, 55, 55)
+                .addComponent(lAscencion)
+                .addContainerGap(57, Short.MAX_VALUE))
+        );
+        AscencionLayout.setVerticalGroup(
+            AscencionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AscencionLayout.createSequentialGroup()
+                .addComponent(lAscencion)
+                .addGap(0, 1, Short.MAX_VALUE))
+        );
+
+        Weapons.setBackground(new java.awt.Color(255, 255, 255));
+        Weapons.setAlignmentX(0.0F);
+        Weapons.setAlignmentY(0.0F);
+        Weapons.setMinimumSize(new java.awt.Dimension(182, 50));
+        Weapons.setPreferredSize(new java.awt.Dimension(182, 50));
+        Weapons.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeaponsMouseClicked(evt);
+            }
+        });
+
+        lWeapons.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lWeapons.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lWeapons.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Weapons.png"))); // NOI18N
+        lWeapons.setText("WEAPONS");
+        lWeapons.setAlignmentY(0.0F);
+        lWeapons.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lWeapons.setIconTextGap(1);
+        lWeapons.setMaximumSize(new java.awt.Dimension(70, 50));
+        lWeapons.setMinimumSize(new java.awt.Dimension(70, 50));
+        lWeapons.setPreferredSize(new java.awt.Dimension(70, 50));
+        lWeapons.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        lWeapons.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lWeaponsMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout WeaponsLayout = new javax.swing.GroupLayout(Weapons);
+        Weapons.setLayout(WeaponsLayout);
+        WeaponsLayout.setHorizontalGroup(
+            WeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(WeaponsLayout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(lWeapons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(55, Short.MAX_VALUE))
+        );
+        WeaponsLayout.setVerticalGroup(
+            WeaponsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, WeaponsLayout.createSequentialGroup()
+                .addComponent(lWeapons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        Info.setBackground(new java.awt.Color(255, 255, 255));
+        Info.setAlignmentX(0.0F);
+        Info.setAlignmentY(0.0F);
+        Info.setMinimumSize(new java.awt.Dimension(182, 50));
+        Info.setPreferredSize(new java.awt.Dimension(182, 50));
+        Info.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                InfoMouseClicked(evt);
+            }
+        });
+
+        lInfo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lInfo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lInfo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Info.png"))); // NOI18N
+        lInfo.setText("INFO");
+        lInfo.setAlignmentY(0.0F);
+        lInfo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lInfo.setIconTextGap(-1);
+        lInfo.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+        javax.swing.GroupLayout InfoLayout = new javax.swing.GroupLayout(Info);
+        Info.setLayout(InfoLayout);
+        InfoLayout.setHorizontalGroup(
+            InfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(InfoLayout.createSequentialGroup()
+                .addGap(77, 77, 77)
+                .addComponent(lInfo)
+                .addContainerGap(75, Short.MAX_VALUE))
+        );
+        InfoLayout.setVerticalGroup(
+            InfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, InfoLayout.createSequentialGroup()
+                .addGap(0, 1, Short.MAX_VALUE)
+                .addComponent(lInfo))
+        );
+
+        Rolls.setBackground(new java.awt.Color(255, 255, 255));
+        Rolls.setAlignmentX(0.0F);
+        Rolls.setAlignmentY(0.0F);
+        Rolls.setMinimumSize(new java.awt.Dimension(182, 50));
+        Rolls.setPreferredSize(new java.awt.Dimension(182, 50));
+        Rolls.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                RollsMouseClicked(evt);
+            }
+        });
+
+        lRolls.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lRolls.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lRolls.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Wish.png"))); // NOI18N
+        lRolls.setText("ROLLS");
+        lRolls.setAlignmentY(0.0F);
+        lRolls.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lRolls.setIconTextGap(-1);
+        lRolls.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+        javax.swing.GroupLayout RollsLayout = new javax.swing.GroupLayout(Rolls);
+        Rolls.setLayout(RollsLayout);
+        RollsLayout.setHorizontalGroup(
+            RollsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RollsLayout.createSequentialGroup()
+                .addContainerGap(72, Short.MAX_VALUE)
+                .addComponent(lRolls)
+                .addGap(70, 70, 70))
+        );
+        RollsLayout.setVerticalGroup(
+            RollsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RollsLayout.createSequentialGroup()
+                .addGap(0, 1, Short.MAX_VALUE)
+                .addComponent(lRolls))
+        );
+
+        javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
+        Menu.setLayout(MenuLayout);
+        MenuLayout.setHorizontalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MenuLayout.createSequentialGroup()
+                .addComponent(Ascencion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(Weapons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(Info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(Rolls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        MenuLayout.setVerticalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(Ascencion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(Weapons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(Info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(Rolls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        getContentPane().add(Menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        Tabs.setAlignmentX(0.0F);
+        Tabs.setAlignmentY(0.0F);
+        Tabs.setMaximumSize(null);
+        Tabs.setPreferredSize(new java.awt.Dimension(728, 351));
+
+        pAscencion.setAlignmentX(0.0F);
+        pAscencion.setAlignmentY(0.0F);
+        pAscencion.setMaximumSize(null);
+        pAscencion.setPreferredSize(new java.awt.Dimension(728, 351));
+        pAscencion.setLayout(null);
+
+        cardPane.setBackground(new java.awt.Color(255, 255, 255));
+        cardPane.setBorder(null);
+        cardPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        cardPane.setAlignmentX(0.0F);
+        cardPane.setAlignmentY(0.0F);
+        cardPane.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        cardPane.setMaximumSize(null);
+        cardPane.setOpaque(false);
+        cardPane.setPreferredSize(new java.awt.Dimension(728, 351));
+
+        pCards.setBackground(new java.awt.Color(102, 102, 102));
+        pCards.setAlignmentX(0.0F);
+        pCards.setAlignmentY(0.0F);
+        pCards.setMaximumSize(null);
+        pCards.setOpaque(false);
+        pCards.setPreferredSize(new java.awt.Dimension(728, 1370));
+        pCards.setLayout(null);
+
+        cAlbedo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        cAlbedo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Albedo.png"))); // NOI18N
+        cAlbedo.setAlignmentY(0.0F);
+        cAlbedo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cAlbedo.setIconTextGap(0);
+        cAlbedo.setPreferredSize(new java.awt.Dimension(132, 158));
+        cAlbedo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cAlbedoMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cAlbedoMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cAlbedoMouseExited(evt);
+            }
+        });
+        pCards.add(cAlbedo);
+        cAlbedo.setBounds(10, 10, 132, 158);
+
+        cAmber.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Amber.png"))); // NOI18N
+        cAmber.setAlignmentY(0.0F);
+        cAmber.setPreferredSize(new java.awt.Dimension(132, 158));
+        cAmber.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cAmberMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cAmberMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cAmberMouseExited(evt);
+            }
+        });
+        pCards.add(cAmber);
+        cAmber.setBounds(150, 10, 132, 158);
+
+        cAyaka.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Ayaka.png"))); // NOI18N
+        cAyaka.setAlignmentY(0.0F);
+        cAyaka.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cAyakaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cAyakaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cAyakaMouseExited(evt);
+            }
+        });
+        pCards.add(cAyaka);
+        cAyaka.setBounds(290, 10, 131, 157);
+
+        cBarbara.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Barbara.png"))); // NOI18N
+        cBarbara.setAlignmentY(0.0F);
+        cBarbara.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cBarbaraMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cBarbaraMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cBarbaraMouseExited(evt);
+            }
+        });
+        pCards.add(cBarbara);
+        cBarbara.setBounds(430, 10, 131, 157);
+
+        cBeidou.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Beidou.png"))); // NOI18N
+        cBeidou.setAlignmentY(0.0F);
+        cBeidou.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cBeidouMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cBeidouMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cBeidouMouseExited(evt);
+            }
+        });
+        pCards.add(cBeidou);
+        cBeidou.setBounds(570, 10, 131, 157);
+
+        cBennett.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Bennett.png"))); // NOI18N
+        cBennett.setAlignmentY(0.0F);
+        cBennett.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cBennettMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cBennettMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cBennettMouseExited(evt);
+            }
+        });
+        pCards.add(cBennett);
+        cBennett.setBounds(10, 180, 131, 157);
+
+        cChongyun.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Chongyun.png"))); // NOI18N
+        cChongyun.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cChongyunMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cChongyunMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cChongyunMouseExited(evt);
+            }
+        });
+        pCards.add(cChongyun);
+        cChongyun.setBounds(150, 180, 131, 157);
+
+        cDiluc.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Diluc.png"))); // NOI18N
+        cDiluc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cDilucMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cDilucMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cDilucMouseExited(evt);
+            }
+        });
+        pCards.add(cDiluc);
+        cDiluc.setBounds(290, 180, 131, 157);
+
+        cDiona.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Diona.png"))); // NOI18N
+        cDiona.setAlignmentY(0.0F);
+        cDiona.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cDionaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cDionaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cDionaMouseExited(evt);
+            }
+        });
+        pCards.add(cDiona);
+        cDiona.setBounds(430, 180, 131, 157);
+
+        cEula.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Eula.png"))); // NOI18N
+        cEula.setAlignmentY(0.0F);
+        cEula.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cEulaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cEulaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cEulaMouseExited(evt);
+            }
+        });
+        pCards.add(cEula);
+        cEula.setBounds(570, 180, 131, 157);
+
+        cFischl.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Fischl.png"))); // NOI18N
+        cFischl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cFischlMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cFischlMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cFischlMouseExited(evt);
+            }
+        });
+        pCards.add(cFischl);
+        cFischl.setBounds(10, 350, 132, 158);
+
+        cGanyu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Ganyu.png"))); // NOI18N
+        cGanyu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cGanyuMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cGanyuMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cGanyuMouseExited(evt);
+            }
+        });
+        pCards.add(cGanyu);
+        cGanyu.setBounds(150, 350, 131, 157);
+
+        cHuTao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Hu Tao.png"))); // NOI18N
+        cHuTao.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cHuTaoMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cHuTaoMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cHuTaoMouseExited(evt);
+            }
+        });
+        pCards.add(cHuTao);
+        cHuTao.setBounds(290, 350, 131, 157);
+
+        cJean.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Jean.png"))); // NOI18N
+        cJean.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cJeanMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cJeanMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cJeanMouseExited(evt);
+            }
+        });
+        pCards.add(cJean);
+        cJean.setBounds(430, 350, 131, 157);
+
+        cKaeya.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Kaeya.png"))); // NOI18N
+        cKaeya.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cKaeyaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cKaeyaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cKaeyaMouseExited(evt);
+            }
+        });
+        pCards.add(cKaeya);
+        cKaeya.setBounds(570, 350, 131, 157);
+
+        cKazuha.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Kazuha.png"))); // NOI18N
+        cKazuha.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cKazuhaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cKazuhaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cKazuhaMouseExited(evt);
+            }
+        });
+        pCards.add(cKazuha);
+        cKazuha.setBounds(10, 520, 131, 157);
+
+        cKeqing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Keqing.png"))); // NOI18N
+        cKeqing.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cKeqingMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cKeqingMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cKeqingMouseExited(evt);
+            }
+        });
+        pCards.add(cKeqing);
+        cKeqing.setBounds(150, 520, 131, 157);
+
+        cKlee.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Klee.png"))); // NOI18N
+        cKlee.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cKleeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cKleeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cKleeMouseExited(evt);
+            }
+        });
+        pCards.add(cKlee);
+        cKlee.setBounds(290, 520, 131, 157);
+
+        cLisa.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Lisa.png"))); // NOI18N
+        cLisa.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cLisaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cLisaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cLisaMouseExited(evt);
+            }
+        });
+        pCards.add(cLisa);
+        cLisa.setBounds(430, 520, 131, 157);
+
+        cMona.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Mona.png"))); // NOI18N
+        cMona.setAlignmentY(0.0F);
+        cMona.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cMonaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cMonaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cMonaMouseExited(evt);
+            }
+        });
+        pCards.add(cMona);
+        cMona.setBounds(570, 520, 131, 157);
+
+        cNingguang.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Ningguang.png"))); // NOI18N
+        cNingguang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cNingguangMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cNingguangMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cNingguangMouseExited(evt);
+            }
+        });
+        pCards.add(cNingguang);
+        cNingguang.setBounds(10, 690, 132, 158);
+
+        cNoelle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Noelle.png"))); // NOI18N
+        cNoelle.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cNoelleMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cNoelleMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cNoelleMouseExited(evt);
+            }
+        });
+        pCards.add(cNoelle);
+        cNoelle.setBounds(150, 690, 131, 157);
+
+        cQiqi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Qiqi.png"))); // NOI18N
+        cQiqi.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cQiqiMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cQiqiMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cQiqiMouseExited(evt);
+            }
+        });
+        pCards.add(cQiqi);
+        cQiqi.setBounds(290, 690, 131, 157);
+
+        cRazor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Razor.png"))); // NOI18N
+        cRazor.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cRazorMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cRazorMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cRazorMouseExited(evt);
+            }
+        });
+        pCards.add(cRazor);
+        cRazor.setBounds(430, 690, 131, 157);
+
+        cRosaria.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Rosaria.png"))); // NOI18N
+        cRosaria.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cRosariaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cRosariaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cRosariaMouseExited(evt);
+            }
+        });
+        pCards.add(cRosaria);
+        cRosaria.setBounds(570, 690, 131, 157);
+
+        cSayu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Sayu.png"))); // NOI18N
+        cSayu.setAlignmentY(0.0F);
+        cSayu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cSayuMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cSayuMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cSayuMouseExited(evt);
+            }
+        });
+        pCards.add(cSayu);
+        cSayu.setBounds(10, 860, 131, 157);
+
+        cSucrose.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Sucrose.png"))); // NOI18N
+        cSucrose.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cSucroseMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cSucroseMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cSucroseMouseExited(evt);
+            }
+        });
+        pCards.add(cSucrose);
+        cSucrose.setBounds(150, 860, 131, 157);
+
+        cTartaglia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Tartaglia.png"))); // NOI18N
+        cTartaglia.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cTartagliaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cTartagliaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cTartagliaMouseExited(evt);
+            }
+        });
+        pCards.add(cTartaglia);
+        cTartaglia.setBounds(290, 860, 131, 157);
+
+        cTraveler.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Traveler.png"))); // NOI18N
+        cTraveler.setEnabled(false);
+        cTraveler.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cTravelerMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cTravelerMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cTravelerMouseExited(evt);
+            }
+        });
+        pCards.add(cTraveler);
+        cTraveler.setBounds(430, 860, 131, 157);
+
+        cVenti.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Venti.png"))); // NOI18N
+        cVenti.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cVentiMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cVentiMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cVentiMouseExited(evt);
+            }
+        });
+        pCards.add(cVenti);
+        cVenti.setBounds(570, 860, 131, 157);
+
+        cXiangling.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Xiangling.png"))); // NOI18N
+        cXiangling.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cXianglingMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cXianglingMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cXianglingMouseExited(evt);
+            }
+        });
+        pCards.add(cXiangling);
+        cXiangling.setBounds(10, 1030, 131, 157);
+
+        cXiao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Xiao.png"))); // NOI18N
+        cXiao.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cXiaoMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cXiaoMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cXiaoMouseExited(evt);
+            }
+        });
+        pCards.add(cXiao);
+        cXiao.setBounds(150, 1030, 131, 157);
+
+        cXingqiu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Xingqiu.png"))); // NOI18N
+        cXingqiu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cXingqiuMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cXingqiuMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cXingqiuMouseExited(evt);
+            }
+        });
+        pCards.add(cXingqiu);
+        cXingqiu.setBounds(290, 1030, 131, 157);
+
+        cXinyan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Xinyan.png"))); // NOI18N
+        cXinyan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cXinyanMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cXinyanMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cXinyanMouseExited(evt);
+            }
+        });
+        pCards.add(cXinyan);
+        cXinyan.setBounds(430, 1030, 131, 157);
+
+        cYanfei.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Yanfei.png"))); // NOI18N
+        cYanfei.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cYanfeiMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cYanfeiMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cYanfeiMouseExited(evt);
+            }
+        });
+        pCards.add(cYanfei);
+        cYanfei.setBounds(570, 1030, 131, 157);
+
+        cYoimiya.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Yoimiya.png"))); // NOI18N
+        cYoimiya.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cYoimiyaMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cYoimiyaMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cYoimiyaMouseExited(evt);
+            }
+        });
+        pCards.add(cYoimiya);
+        cYoimiya.setBounds(10, 1200, 131, 157);
+
+        cZhongli.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cards/Zhongli.png"))); // NOI18N
+        cZhongli.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cZhongliMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cZhongliMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                cZhongliMouseExited(evt);
+            }
+        });
+        pCards.add(cZhongli);
+        cZhongli.setBounds(150, 1200, 131, 157);
+
+        cardBackground.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Card Background.jpg"))); // NOI18N
+        cardBackground.setText("jLabel1");
+        cardBackground.setMaximumSize(null);
+        cardBackground.setMinimumSize(null);
+        cardBackground.setPreferredSize(new java.awt.Dimension(728, 4000));
+        pCards.add(cardBackground);
+        cardBackground.setBounds(0, 0, 728, 4000);
+
+        cardPane.setViewportView(pCards);
+        pCards.getAccessibleContext().setAccessibleParent(pAscencion);
+
+        pAscencion.add(cardPane);
+        cardPane.setBounds(0, 0, 728, 351);
+        cardPane.getAccessibleContext().setAccessibleParent(cardPane);
+
+        lSliver.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lSliver.setText("1");
+        lSliver.setAlignmentY(0.0F);
+        lSliver.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lSliver.setIconTextGap(0);
+        lSliver.setMaximumSize(null);
+        lSliver.setMinimumSize(null);
+        lSliver.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lSliver);
+        lSliver.setBounds(292, 90, 34, 16);
+
+        lFragment.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lFragment.setText("0");
+        lFragment.setAlignmentY(0.0F);
+        lFragment.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lFragment.setIconTextGap(0);
+        lFragment.setMaximumSize(null);
+        lFragment.setMinimumSize(null);
+        lFragment.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lFragment);
+        lFragment.setBounds(354, 90, 34, 16);
+
+        lChunk.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lChunk.setText("0");
+        lChunk.setAlignmentY(0.0F);
+        lChunk.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lChunk.setIconTextGap(0);
+        lChunk.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lChunk);
+        lChunk.setBounds(416, 90, 34, 16);
+
+        lGemstone.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lGemstone.setText("0");
+        lGemstone.setAlignmentY(0.0F);
+        lGemstone.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lGemstone.setIconTextGap(0);
+        lGemstone.setMaximumSize(null);
+        lGemstone.setMinimumSize(null);
+        lGemstone.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lGemstone);
+        lGemstone.setBounds(478, 90, 34, 16);
+
+        lBoss.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lBoss.setText("0");
+        lBoss.setAlignmentY(0.0F);
+        lBoss.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lBoss.setIconTextGap(0);
+        lBoss.setMaximumSize(null);
+        lBoss.setMinimumSize(null);
+        lBoss.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lBoss);
+        lBoss.setBounds(585, 90, 34, 16);
+
+        lTalent1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTalent1.setText("9");
+        lTalent1.setAlignmentY(0.0F);
+        lTalent1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lTalent1.setIconTextGap(0);
+        lTalent1.setMaximumSize(null);
+        lTalent1.setMinimumSize(null);
+        lTalent1.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lTalent1);
+        lTalent1.setBounds(292, 208, 34, 16);
+
+        lTalent2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTalent2.setText("0");
+        lTalent2.setAlignmentY(0.0F);
+        lTalent2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lTalent2.setIconTextGap(0);
+        lTalent2.setMaximumSize(null);
+        lTalent2.setMinimumSize(null);
+        lTalent2.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lTalent2);
+        lTalent2.setBounds(354, 208, 34, 16);
+
+        lTalent3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTalent3.setText("0");
+        lTalent3.setAlignmentY(0.0F);
+        lTalent3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lTalent3.setIconTextGap(0);
+        lTalent3.setMaximumSize(null);
+        lTalent3.setMinimumSize(null);
+        lTalent3.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lTalent3);
+        lTalent3.setBounds(416, 208, 34, 16);
+
+        lTalent4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTalent4.setText("0");
+        lTalent4.setAlignmentY(0.0F);
+        lTalent4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lTalent4.setIconTextGap(0);
+        lTalent4.setMaximumSize(null);
+        lTalent4.setMinimumSize(null);
+        lTalent4.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lTalent4);
+        lTalent4.setBounds(521, 208, 34, 16);
+
+        lTalent5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lTalent5.setText("0");
+        lTalent5.setAlignmentY(0.0F);
+        lTalent5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lTalent5.setIconTextGap(0);
+        lTalent5.setMaximumSize(null);
+        lTalent5.setMinimumSize(null);
+        lTalent5.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lTalent5);
+        lTalent5.setBounds(585, 208, 34, 16);
+
+        lCommon1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lCommon1.setText("21");
+        lCommon1.setAlignmentY(0.0F);
+        lCommon1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lCommon1.setIconTextGap(0);
+        lCommon1.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lCommon1);
+        lCommon1.setBounds(292, 327, 34, 16);
+
+        lCommon2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lCommon2.setText("0");
+        lCommon2.setAlignmentY(0.0F);
+        lCommon2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lCommon2.setIconTextGap(0);
+        lCommon2.setMaximumSize(null);
+        lCommon2.setMinimumSize(null);
+        lCommon2.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lCommon2);
+        lCommon2.setBounds(354, 327, 34, 16);
+
+        lCommon3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lCommon3.setText("0");
+        lCommon3.setAlignmentY(0.0F);
+        lCommon3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lCommon3.setIconTextGap(0);
+        lCommon3.setMaximumSize(null);
+        lCommon3.setMinimumSize(null);
+        lCommon3.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lCommon3);
+        lCommon3.setBounds(416, 327, 34, 16);
+
+        lSpecialty.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lSpecialty.setText("3");
+        lSpecialty.setAlignmentY(0.0F);
+        lSpecialty.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lSpecialty.setIconTextGap(0);
+        lSpecialty.setMaximumSize(null);
+        lSpecialty.setMinimumSize(null);
+        lSpecialty.setPreferredSize(new java.awt.Dimension(34, 16));
+        pAscencion.add(lSpecialty);
+        lSpecialty.setBounds(522, 327, 34, 16);
+
+        sPhase.setMajorTickSpacing(1);
+        sPhase.setMaximum(5);
+        sPhase.setPaintLabels(true);
+        sPhase.setPaintTicks(true);
+        sPhase.setSnapToTicks(true);
+        sPhase.setValue(0);
+        sPhase.setAlignmentX(0.0F);
+        sPhase.setAlignmentY(0.0F);
+        sPhase.setPreferredSize(new java.awt.Dimension(143, 45));
+        sPhase.setValueIsAdjusting(true);
+        sPhase.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                sPhaseStateChanged(evt);
+            }
+        });
+        pAscencion.add(sPhase);
+        sPhase.setBounds(43, 295, 143, 45);
+
+        bList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Arrow Down Small.png"))); // NOI18N
+        bList.setAlignmentY(0.0F);
+        bList.setBorder(null);
+        bList.setBorderPainted(false);
+        bList.setContentAreaFilled(false);
+        bList.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bList.setIconTextGap(0);
+        bList.setMargin(null);
+        bList.setMaximumSize(null);
+        bList.setMinimumSize(null);
+        bList.setPreferredSize(new java.awt.Dimension(14, 10));
+        bList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bListMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                bListMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                bListMouseReleased(evt);
+            }
+        });
+        pAscencion.add(bList);
+        bList.setBounds(160, 227, 14, 10);
+
+        charSelected.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        charSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/WSquare.png"))); // NOI18N
+        charSelected.setAlignmentY(0.0F);
+        charSelected.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        charSelected.setPreferredSize(new java.awt.Dimension(105, 20));
+        pAscencion.add(charSelected);
+        charSelected.setBounds(63, 222, 105, 20);
+
+        charList.setMaximumRowCount(6);
+        charList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Albedo", "Amber", "Ayaka", "Barbara", "Beidou", "Bennett", "Chongyun", "Diluc", "Diona", "Eula", "Fischl", "Ganyu", "Hu Tao", "Jean", "Kaeya", "Kazuha", "Keqing", "Klee", "Lisa", "Mona", "Ningguang", "Noelle", "Qiqi", "Razor", "Rosaria", "Sayu", "Sucrose", "Tartaglia", "Xiangling", "Xiao", "Xingqiu", "Xinyan", "Yanfei", "Yoimiya", "Zhongli" }));
+        charList.setAlignmentX(0.0F);
+        charList.setAlignmentY(0.0F);
+        charList.setAutoscrolls(true);
+        charList.setBorder(null);
+        charList.setEnabled(false);
+        charList.setMaximumSize(null);
+        charList.setOpaque(false);
+        charList.setPreferredSize(new java.awt.Dimension(85, 20));
+        charList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                charListActionPerformed(evt);
+            }
+        });
+        pAscencion.add(charList);
+        charList.setBounds(73, 222, 85, 20);
+
+        bAscencion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bAscencion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/namecards/Albedo.png"))); // NOI18N
+        bAscencion.setAlignmentY(0.0F);
+        bAscencion.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        pAscencion.add(bAscencion);
+        bAscencion.setBounds(0, 0, 728, 351);
+
+        bWeapons.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bWeapons.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/UD.jpg"))); // NOI18N
+        bWeapons.setAlignmentY(0.0F);
+        bWeapons.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
+        pInfo.setAlignmentX(0.0F);
+        pInfo.setAlignmentY(0.0F);
+        pInfo.setMaximumSize(null);
+        pInfo.setPreferredSize(new java.awt.Dimension(728, 351));
+        pInfo.setLayout(null);
+
+        bChar.setText("CHARACTERS");
+        bChar.setAlignmentY(0.0F);
+        bChar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bChar.setMaximumSize(null);
+        bChar.setMinimumSize(null);
+        bChar.setPreferredSize(new java.awt.Dimension(110, 23));
+        bChar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bCharMouseClicked(evt);
+            }
+        });
+        pInfo.add(bChar);
+        bChar.setBounds(243, 10, 110, 23);
+
+        bTalents.setText("TALENTS");
+        bTalents.setAlignmentY(0.0F);
+        bTalents.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bTalents.setMaximumSize(null);
+        bTalents.setMinimumSize(null);
+        bTalents.setPreferredSize(new java.awt.Dimension(110, 23));
+        bTalents.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bTalentsMouseClicked(evt);
+            }
+        });
+        pInfo.add(bTalents);
+        bTalents.setBounds(355, 10, 110, 23);
+
+        infoChar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        infoChar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Info Char.png"))); // NOI18N
+        infoChar.setAlignmentY(0.0F);
+        infoChar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        infoChar.setMaximumSize(null);
+        infoChar.setMinimumSize(null);
+        pInfo.add(infoChar);
+        infoChar.setBounds(0, 0, 728, 351);
+
+        infoTalents.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        infoTalents.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Info Talents.png"))); // NOI18N
+        infoTalents.setAlignmentY(0.0F);
+        infoTalents.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        infoTalents.setMaximumSize(null);
+        infoTalents.setMinimumSize(null);
+        pInfo.add(infoTalents);
+        infoTalents.setBounds(0, 0, 728, 351);
+
+        bInfo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bInfo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Info Background.png"))); // NOI18N
+        bInfo.setAlignmentY(0.0F);
+        bInfo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bInfo.setMaximumSize(null);
+        bInfo.setMinimumSize(null);
+        pInfo.add(bInfo);
+        bInfo.setBounds(0, 0, 728, 351);
+
+        pRolls.setAlignmentX(0.0F);
+        pRolls.setAlignmentY(0.0F);
+        pRolls.setMaximumSize(null);
+        pRolls.setPreferredSize(new java.awt.Dimension(728, 351));
+        pRolls.setLayout(null);
+
+        StAddRoll.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StAddRoll.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Acquaint Fate.png"))); // NOI18N
+        StAddRoll.setAlignmentY(0.0F);
+        StAddRoll.setPreferredSize(new java.awt.Dimension(42, 42));
+        StAddRoll.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StAddRollMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                StAddRollMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                StAddRollMouseReleased(evt);
+            }
+        });
+        pRolls.add(StAddRoll);
+        StAddRoll.setBounds(269, 61, 42, 42);
+
+        StMegaPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        StMegaPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StMegaPity.setAlignmentY(0.0F);
+        StMegaPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StMegaPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        StMegaPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        StMegaPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(StMegaPity);
+        StMegaPity.setBounds(56, 82, 29, 17);
+
+        StMiniPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        StMiniPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StMiniPity.setAlignmentY(0.0F);
+        StMiniPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StMiniPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        StMiniPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        StMiniPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(StMiniPity);
+        StMiniPity.setBounds(126, 82, 29, 17);
+
+        StTotal.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        StTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StTotal.setAlignmentY(0.0F);
+        StTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StTotal.setMaximumSize(new java.awt.Dimension(34, 15));
+        StTotal.setMinimumSize(new java.awt.Dimension(34, 15));
+        StTotal.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(StTotal);
+        StTotal.setBounds(193, 82, 29, 17);
+
+        StSet.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StSet.setAlignmentY(0.0F);
+        StSet.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StSet.setPreferredSize(new java.awt.Dimension(39, 17));
+        StSet.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StSetMouseClicked(evt);
+            }
+        });
+        pRolls.add(StSet);
+        StSet.setBounds(272, 33, 39, 17);
+
+        StReset.setAlignmentY(0.0F);
+        StReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        StReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(StReset);
+        StReset.setBounds(314, 33, 39, 17);
+
+        StMiniReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StMiniReset.setAlignmentY(0.0F);
+        StMiniReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StMiniReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        StMiniReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StMiniResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(StMiniReset);
+        StMiniReset.setBounds(314, 62, 39, 17);
+
+        StMegaReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        StMegaReset.setAlignmentY(0.0F);
+        StMegaReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        StMegaReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        StMegaReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StMegaResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(StMegaReset);
+        StMegaReset.setBounds(314, 82, 39, 17);
+
+        CharAddRoll.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharAddRoll.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Intertwined Fate.png"))); // NOI18N
+        CharAddRoll.setAlignmentY(0.0F);
+        CharAddRoll.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharAddRoll.setMaximumSize(new java.awt.Dimension(42, 42));
+        CharAddRoll.setMinimumSize(new java.awt.Dimension(42, 42));
+        CharAddRoll.setPreferredSize(new java.awt.Dimension(42, 42));
+        CharAddRoll.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharAddRollMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                CharAddRollMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                CharAddRollMouseReleased(evt);
+            }
+        });
+        pRolls.add(CharAddRoll);
+        CharAddRoll.setBounds(269, 173, 42, 42);
+
+        CharMegaPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        CharMegaPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharMegaPity.setAlignmentY(0.0F);
+        CharMegaPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharMegaPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        CharMegaPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        CharMegaPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(CharMegaPity);
+        CharMegaPity.setBounds(56, 195, 29, 17);
+
+        CharMiniPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        CharMiniPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharMiniPity.setAlignmentY(0.0F);
+        CharMiniPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharMiniPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        CharMiniPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        CharMiniPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(CharMiniPity);
+        CharMiniPity.setBounds(126, 195, 29, 17);
+
+        CharTotal.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        CharTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharTotal.setAlignmentY(0.0F);
+        CharTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharTotal.setMaximumSize(new java.awt.Dimension(34, 15));
+        CharTotal.setMinimumSize(new java.awt.Dimension(34, 15));
+        CharTotal.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(CharTotal);
+        CharTotal.setBounds(193, 195, 29, 17);
+
+        CharSet.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharSet.setAlignmentY(0.0F);
+        CharSet.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharSet.setPreferredSize(new java.awt.Dimension(39, 17));
+        CharSet.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharSetMouseClicked(evt);
+            }
+        });
+        pRolls.add(CharSet);
+        CharSet.setBounds(272, 146, 39, 17);
+
+        CharReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharReset.setAlignmentY(0.0F);
+        CharReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        CharReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(CharReset);
+        CharReset.setBounds(314, 146, 39, 17);
+
+        CharMiniReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        CharMiniReset.setAlignmentY(0.0F);
+        CharMiniReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        CharMiniReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        CharMiniReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharMiniResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(CharMiniReset);
+        CharMiniReset.setBounds(314, 175, 39, 17);
+
+        CharMegaReset.setAlignmentY(0.0F);
+        CharMegaReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        CharMegaReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CharMegaResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(CharMegaReset);
+        CharMegaReset.setBounds(314, 195, 39, 17);
+
+        WeapAddRoll.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapAddRoll.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Intertwined Fate.png"))); // NOI18N
+        WeapAddRoll.setAlignmentY(0.0F);
+        WeapAddRoll.setPreferredSize(new java.awt.Dimension(42, 42));
+        WeapAddRoll.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeapAddRollMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                WeapAddRollMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                WeapAddRollMouseReleased(evt);
+            }
+        });
+        pRolls.add(WeapAddRoll);
+        WeapAddRoll.setBounds(269, 282, 42, 42);
+
+        WeapMegaPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        WeapMegaPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapMegaPity.setAlignmentY(0.0F);
+        WeapMegaPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapMegaPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        WeapMegaPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        WeapMegaPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(WeapMegaPity);
+        WeapMegaPity.setBounds(56, 304, 29, 17);
+
+        WeapMiniPity.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        WeapMiniPity.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapMiniPity.setAlignmentY(0.0F);
+        WeapMiniPity.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapMiniPity.setMaximumSize(new java.awt.Dimension(34, 15));
+        WeapMiniPity.setMinimumSize(new java.awt.Dimension(34, 15));
+        WeapMiniPity.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(WeapMiniPity);
+        WeapMiniPity.setBounds(126, 304, 29, 17);
+
+        WeapTotal.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        WeapTotal.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapTotal.setAlignmentY(0.0F);
+        WeapTotal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapTotal.setMaximumSize(new java.awt.Dimension(34, 15));
+        WeapTotal.setMinimumSize(new java.awt.Dimension(34, 15));
+        WeapTotal.setPreferredSize(new java.awt.Dimension(29, 17));
+        pRolls.add(WeapTotal);
+        WeapTotal.setBounds(193, 304, 29, 17);
+
+        WeapSet.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapSet.setAlignmentY(0.0F);
+        WeapSet.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapSet.setPreferredSize(new java.awt.Dimension(39, 17));
+        WeapSet.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeapSetMouseClicked(evt);
+            }
+        });
+        pRolls.add(WeapSet);
+        WeapSet.setBounds(272, 255, 39, 17);
+
+        WeapReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapReset.setAlignmentY(0.0F);
+        WeapReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        WeapReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeapResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(WeapReset);
+        WeapReset.setBounds(314, 255, 39, 17);
+
+        WeapMiniReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapMiniReset.setAlignmentY(0.0F);
+        WeapMiniReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapMiniReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        WeapMiniReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeapMiniResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(WeapMiniReset);
+        WeapMiniReset.setBounds(314, 284, 39, 17);
+
+        WeapMegaReset.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        WeapMegaReset.setAlignmentY(0.0F);
+        WeapMegaReset.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        WeapMegaReset.setPreferredSize(new java.awt.Dimension(39, 17));
+        WeapMegaReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                WeapMegaResetMouseClicked(evt);
+            }
+        });
+        pRolls.add(WeapMegaReset);
+        WeapMegaReset.setBounds(314, 304, 39, 17);
+
+        lDoge.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lDoge.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Taroumaru.png"))); // NOI18N
+        lDoge.setAlignmentY(0.0F);
+        lDoge.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        pRolls.add(lDoge);
+        lDoge.setBounds(380, 43, 328, 281);
+
+        lArrow.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Arrow White.png"))); // NOI18N
+        lArrow.setAlignmentY(0.0F);
+        pRolls.add(lArrow);
+        lArrow.setBounds(375, 198, 6, 9);
+
+        bDoge.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bDoge.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Button.png"))); // NOI18N
+        bDoge.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bDoge.setPreferredSize(new java.awt.Dimension(169, 25));
+        bDoge.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bDogeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                bDogeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                bDogeMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                bDogeMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                bDogeMouseReleased(evt);
+            }
+        });
+        pRolls.add(bDoge);
+        bDoge.setBounds(380, 190, 169, 25);
+
+        lDogeText.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Taroumaru Text.png"))); // NOI18N
+        pRolls.add(lDogeText);
+        lDogeText.setBounds(379, 43, 328, 281);
+
+        bRolls.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bRolls.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Roll Background.png"))); // NOI18N
+        bRolls.setAlignmentY(0.0F);
+        bRolls.setFocusable(false);
+        bRolls.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        bRolls.setMaximumSize(null);
+        bRolls.setMinimumSize(null);
+        pRolls.add(bRolls);
+        bRolls.setBounds(0, 0, 728, 351);
+
+        javax.swing.GroupLayout TabsLayout = new javax.swing.GroupLayout(Tabs);
+        Tabs.setLayout(TabsLayout);
+        TabsLayout.setHorizontalGroup(
+            TabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(pAscencion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pRolls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(bWeapons)
+        );
+        TabsLayout.setVerticalGroup(
+            TabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(pAscencion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pRolls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(bWeapons)
+        );
+
+        getContentPane().add(Tabs, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, -1, -1));
+
+        bSplash.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        bSplash.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/Splash.jpg"))); // NOI18N
+        bSplash.setAlignmentY(0.0F);
+        bSplash.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bSplashMouseClicked(evt);
+            }
+        });
+        getContentPane().add(bSplash, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pack();
+    }// </editor-fold>                        
+
+    private void AscencionMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        pAscencion.setVisible(true);
+        bWeapons.setVisible(false);
+        pInfo.setVisible(false);
+        pRolls.setVisible(false);
+        
+        lDogeText.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.lightGray);
+        Weapons.setBackground(java.awt.Color.white);
+        Info.setBackground(java.awt.Color.white);
+        Rolls.setBackground(java.awt.Color.white);
+    }                                      
+
+    private void RollsMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        pAscencion.setVisible(false);
+        bWeapons.setVisible(false);
+        pInfo.setVisible(false);
+        pRolls.setVisible(true);
+        
+        Ascencion.setBackground(java.awt.Color.white);
+        Weapons.setBackground(java.awt.Color.white);
+        Info.setBackground(java.awt.Color.white);
+        Rolls.setBackground(java.awt.Color.lightGray);
+    }                                  
+
+    private void WeaponsMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        pAscencion.setVisible(false);
+        bWeapons.setVisible(true);
+        pInfo.setVisible(false);
+        pRolls.setVisible(false);
+        
+        lDogeText.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.white);
+        Weapons.setBackground(java.awt.Color.lightGray);
+        Info.setBackground(java.awt.Color.white);
+        Rolls.setBackground(java.awt.Color.white);
+    }                                    
+
+    private void InfoMouseClicked(java.awt.event.MouseEvent evt) {                                  
+        pAscencion.setVisible(false);
+        bWeapons.setVisible(false);
+        pInfo.setVisible(true);
+        pRolls.setVisible(false);
+        
+        lDogeText.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.white);
+        Weapons.setBackground(java.awt.Color.white);
+        Info.setBackground(java.awt.Color.lightGray);
+        Rolls.setBackground(java.awt.Color.white);
+    }                                 
+
+    private void lAscencionMouseClicked(java.awt.event.MouseEvent evt) {                                        
+        pAscencion.setVisible(true);
+        bWeapons.setVisible(false);
+        pInfo.setVisible(false);
+        pRolls.setVisible(false);
+        
+        lDogeText.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.lightGray);
+        Weapons.setBackground(java.awt.Color.white);
+        Info.setBackground(java.awt.Color.white);
+        Rolls.setBackground(java.awt.Color.white);
+    }                                       
+
+    private void lWeaponsMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        pAscencion.setVisible(false);
+        bWeapons.setVisible(true);
+        pInfo.setVisible(false);
+        pRolls.setVisible(false);
+        
+        lDogeText.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.white);
+        Weapons.setBackground(java.awt.Color.lightGray);
+        Info.setBackground(java.awt.Color.white);
+        Rolls.setBackground(java.awt.Color.white);
+    }                                     
+
+    private void StAddRollMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        StdMegaPity++;
+        if (StdMegaPity == 90) {
+            StdMegaPity = 0;
+            StMegaPity.setText(""+StdMegaPity);
+            rolls.put("Standard","Mega Pity", StdMegaPity);
+        } else {
+            StMegaPity.setText(""+StdMegaPity);
+            rolls.put("Standard","Mega Pity", StdMegaPity);
+        }
+        
+        StdMiniPity++;
+        if (StdMiniPity == 10) {
+            StdMiniPity = 0;
+            StMiniPity.setText(""+StdMiniPity);
+            rolls.put("Standard","Mini Pity", StdMiniPity);
+        } else {
+            StMiniPity.setText(""+StdMiniPity);
+            rolls.put("Standard","Mini Pity", StdMiniPity);
+        }
+        
+        StdTotal++;
+        StTotal.setText(""+StdTotal);
+        rolls.put("Standard","Total", StdTotal);
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                      
+
+    private void CharAddRollMouseClicked(java.awt.event.MouseEvent evt) {                                         
+        ChMegaPity++;
+        if (ChMegaPity == 90) {
+            ChMegaPity = 0;
+            CharMegaPity.setText(""+ChMegaPity);
+            rolls.put("Character","Mega Pity", ChMegaPity);
+        } else {
+            CharMegaPity.setText(""+ChMegaPity);
+            rolls.put("Character","Mega Pity", ChMegaPity);
+        }
+        
+        ChMiniPity++;
+        if (ChMiniPity == 10) {
+            ChMiniPity = 0;
+            CharMiniPity.setText(""+ChMiniPity);
+            rolls.put("Character","Mini Pity", ChMiniPity);
+        } else {
+            CharMiniPity.setText(""+ChMiniPity);
+            rolls.put("Character","Mini Pity", ChMiniPity);
+        }
+        
+        ChTotal++;
+        CharTotal.setText(""+ChTotal);
+        rolls.put("Character","Total", ChTotal);
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                        
+
+    private void WeapAddRollMouseClicked(java.awt.event.MouseEvent evt) {                                         
+        WpMegaPity++;
+        if (WpMegaPity == 80) {
+            WpMegaPity = 0;
+            WeapMegaPity.setText(""+WpMegaPity);
+            rolls.put("Weapon","Mega Pity", WpMegaPity);
+        } else {
+            WeapMegaPity.setText(""+WpMegaPity);
+            rolls.put("Weapon","Mega Pity", WpMegaPity);
+        }
+        
+        WpMiniPity++;
+        if (WpMiniPity == 10) {
+            WpMiniPity = 0;
+            WeapMiniPity.setText(""+WpMiniPity);
+            rolls.put("Weapon","Mini Pity", WpMiniPity);
+        } else {
+            WeapMiniPity.setText(""+WpMiniPity);
+            rolls.put("Weapon","Mini Pity", WpMiniPity);
+        }
+        
+        WpTotal++;
+        WeapTotal.setText(""+WpTotal);
+        rolls.put("Weapon","Total", WpTotal);
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                        
+
+    private void StResetMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        StdMegaPity = 0;
+        StdMiniPity = 0;
+        StdTotal = 0;
+        
+        rolls.put("Standard","Mega Pity", StdMegaPity);
+        rolls.put("Standard","Mini Pity", StdMiniPity);
+        rolls.put("Standard","Total", StdTotal);
+        
+        StMegaPity.setText("0");
+        StMiniPity.setText("0");
+        StTotal.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                    
+
+    private void StSetMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        JTextField StMeP = new JTextField(3);
+        JTextField StMiP = new JTextField(3);
+        JTextField StT = new JTextField(3);
+        
+        JPanel setST = new JPanel();
+        
+        setST.add(new JLabel("Mega Pity: "));
+        setST.add(StMeP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Mini Pity: "));
+        setST.add(StMiP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Total: "));
+        setST.add(StT);
+        
+        int result = JOptionPane.showConfirmDialog(null, setST, 
+               "STANDARD BANNER ROLLS", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            StdMegaPity = Integer.parseInt(StMeP.getText());
+            StdMiniPity = Integer.parseInt(StMiP.getText());
+            StdTotal = Integer.parseInt(StT.getText());
+
+            rolls.put("Standard","Mega Pity", StdMegaPity);
+            rolls.put("Standard","Mini Pity", StdMiniPity);
+            rolls.put("Standard","Total", StdTotal);
+
+            StMegaPity.setText(""+StdMegaPity);
+            StMiniPity.setText(""+StdMiniPity);
+            StTotal.setText(""+StdTotal);
+      }
+    }                                  
+
+    private void CharSetMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        JTextField CharMeP = new JTextField(3);
+        JTextField CharMiP = new JTextField(3);
+        JTextField CharT = new JTextField(3);
+        
+        JPanel setST = new JPanel();
+        
+        setST.add(new JLabel("Mega Pity: "));
+        setST.add(CharMeP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Mini Pity: "));
+        setST.add(CharMiP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Total: "));
+        setST.add(CharT);
+        
+        int result = JOptionPane.showConfirmDialog(null, setST, 
+               "CHARACTER BANNER ROLLS", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            ChMegaPity = Integer.parseInt(CharMeP.getText());
+            ChMiniPity = Integer.parseInt(CharMiP.getText());
+            ChTotal = Integer.parseInt(CharT.getText());
+
+            rolls.put("Character","Mega Pity", ChMegaPity);
+            rolls.put("Character","Mini Pity", ChMiniPity);
+            rolls.put("Character","Total", ChTotal);
+
+            CharMegaPity.setText(""+ChMegaPity);
+            CharMiniPity.setText(""+ChMiniPity);
+            CharTotal.setText(""+ChTotal);
+        }
+    }                                    
+
+    private void CharResetMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        ChMegaPity = 0;
+        ChMiniPity = 0;
+        ChTotal = 0;
+        
+        rolls.put("Character","Mega Pity", ChMegaPity);
+        rolls.put("Character","Mini Pity", ChMiniPity);
+        rolls.put("Character","Total", ChTotal);
+        
+        CharMegaPity.setText("0");
+        CharMiniPity.setText("0");
+        CharTotal.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                      
+
+    private void WeapSetMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        JTextField WeapMeP = new JTextField(3);
+        JTextField WeapMiP = new JTextField(3);
+        JTextField WeapT = new JTextField(3);
+        
+        JPanel setST = new JPanel();
+        
+        setST.add(new JLabel("Mega Pity: "));
+        setST.add(WeapMeP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Mini Pity: "));
+        setST.add(WeapMiP);
+        setST.add(Box.createHorizontalStrut(5));
+        setST.add(new JLabel("Total: "));
+        setST.add(WeapT);
+        
+        int result = JOptionPane.showConfirmDialog(null, setST, 
+               "WEAPON BANNER ROLLS", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            WpMegaPity = Integer.parseInt(WeapMeP.getText());
+            WpMiniPity = Integer.parseInt(WeapMiP.getText());
+            WpTotal = Integer.parseInt(WeapT.getText());
+
+            rolls.put("Weapon","Mega Pity", WpMegaPity);
+            rolls.put("Weapon","Mini Pity", WpMiniPity);
+            rolls.put("Weapon","Total", WpTotal);
+
+            WeapMegaPity.setText(""+WpMegaPity);
+            WeapMiniPity.setText(""+WpMiniPity);
+            WeapTotal.setText(""+WpTotal);
+        }
+    }                                    
+
+    private void WeapResetMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        WpMegaPity = 0;
+        WpMiniPity = 0;
+        WpTotal = 0;
+        
+        rolls.put("Weapon","Mega Pity", WpMegaPity);
+        rolls.put("Weapon","Mini Pity", WpMiniPity);
+        rolls.put("Weapon","Total", WpTotal);
+        
+        WeapMegaPity.setText("0");
+        WeapMiniPity.setText("0");
+        WeapTotal.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                      
+
+    private void StMiniResetMouseClicked(java.awt.event.MouseEvent evt) {                                         
+        StdMiniPity = 0;
+        rolls.put("Standard","Mini Pity", StdMiniPity);
+        StMiniPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                        
+
+    private void StMegaResetMouseClicked(java.awt.event.MouseEvent evt) {                                         
+        //StdMiniPity = 0;
+        StdMegaPity = 0;
+        //rolls.put("Standard","Mini Pity", StdMiniPity);
+        rolls.put("Standard","Mega Pity", StdMegaPity);
+        //StMiniPity.setText("0");
+        StMegaPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                        
+
+    private void CharMiniResetMouseClicked(java.awt.event.MouseEvent evt) {                                           
+        ChMiniPity = 0;
+        rolls.put("Character","Mini Pity", ChMiniPity);
+        CharMiniPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                          
+
+    private void CharMegaResetMouseClicked(java.awt.event.MouseEvent evt) {                                           
+        //ChMiniPity = 0;
+        ChMegaPity = 0;
+        //rolls.put("Character","Mini Pity", ChMiniPity);
+        rolls.put("Character","Mega Pity", ChMegaPity);
+        //CharMiniPity.setText("0");
+        CharMegaPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                          
+
+    private void WeapMiniResetMouseClicked(java.awt.event.MouseEvent evt) {                                           
+        WpMiniPity = 0;
+        rolls.put("Weapon","Mini Pity", WpMiniPity);
+        WeapMiniPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                          
+
+    private void WeapMegaResetMouseClicked(java.awt.event.MouseEvent evt) {                                           
+        //WpMiniPity = 0;
+        WpMegaPity = 0;
+        //rolls.put("Weapon","Mini Pity", WpMiniPity);
+        rolls.put("Weapon","Mega Pity", WpMegaPity);
+        //WeapMiniPity.setText("0");
+        WeapMegaPity.setText("0");
+        
+        try {
+            rolls.store();
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                          
+
+    private void StAddRollMousePressed(java.awt.event.MouseEvent evt) {                                       
+        URL uaf2 = GUI.class.getResource("/resources/Acquaint Fate 2.png");
+        ImageIcon af2 = new ImageIcon(uaf2);
+        StAddRoll.setIcon(af2);
+        StAddRoll.setSize(60,60);
+        StAddRoll.setLocation(260, 51);
+    }                                      
+
+    private void StAddRollMouseReleased(java.awt.event.MouseEvent evt) {                                        
+        URL uaf = GUI.class.getResource("/resources/Acquaint Fate.png");
+        ImageIcon af = new ImageIcon(uaf);
+        StAddRoll.setIcon(af);
+        StAddRoll.setSize(42,42);
+        StAddRoll.setLocation(269, 61);
+    }                                       
+
+    private void CharAddRollMousePressed(java.awt.event.MouseEvent evt) {                                         
+        URL uif2 = GUI.class.getResource("/resources/Intertwined Fate 2.png");
+        ImageIcon if2 = new ImageIcon(uif2);
+        CharAddRoll.setIcon(if2);
+        CharAddRoll.setSize(60,60);
+        CharAddRoll.setLocation(260, 163);
+    }                                        
+
+    private void CharAddRollMouseReleased(java.awt.event.MouseEvent evt) {                                          
+        URL uif1 = GUI.class.getResource("/resources/Intertwined Fate.png");
+        ImageIcon if1 = new ImageIcon(uif1);
+        CharAddRoll.setIcon(if1);
+        CharAddRoll.setSize(42,42);
+        CharAddRoll.setLocation(269, 173);
+    }                                         
+
+    private void WeapAddRollMousePressed(java.awt.event.MouseEvent evt) {                                         
+        URL uif2 = GUI.class.getResource("/resources/Intertwined Fate 2.png");
+        ImageIcon if2 = new ImageIcon(uif2);
+        WeapAddRoll.setIcon(if2);
+        WeapAddRoll.setSize(60,60);
+        WeapAddRoll.setLocation(260, 272);
+    }                                        
+
+    private void WeapAddRollMouseReleased(java.awt.event.MouseEvent evt) {                                          
+        URL uif1 = GUI.class.getResource("/resources/Intertwined Fate.png");
+        ImageIcon if1 = new ImageIcon(uif1);
+        WeapAddRoll.setIcon(if1);
+        WeapAddRoll.setSize(42,42);
+        WeapAddRoll.setLocation(269, 282);
+    }                                         
+
+    private void bTalentsMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        infoChar.setVisible(false);
+        infoTalents.setVisible(true);
+    }                                     
+
+    private void bCharMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        infoChar.setVisible(true);
+        infoTalents.setVisible(false);
+    }                                  
+
+    private void charListActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        String selection = String.valueOf(charList.getSelectedItem());
+
+        /*
+        URL nc = GUI.class.getResource("/namecards/.png");
+        ImageIcon = new ImageIcon(nc);
+        bAscencion.setIcon();
+        break;
+        */
+
+        switch(selection){
+            case "Albedo": //Select Albedo Namecard
+                URL ncAlbedo = GUI.class.getResource("/namecards/Albedo.png");
+                ImageIcon Albedo = new ImageIcon(ncAlbedo);
+                bAscencion.setIcon(Albedo);
+                charSelected.setText("Albedo");
+              break;
+            case "Amber": //Select Amber Namecard
+                URL ncAmber = GUI.class.getResource("/namecards/Amber.png");
+                ImageIcon Amber = new ImageIcon(ncAmber);
+                bAscencion.setIcon(Amber);
+                charSelected.setText("Amber");
+              break;
+            case "A.Traveler": //Select A.Traveler Namecard
+                URL ncATraveler = GUI.class.getResource("/namecards/Anemo Traveler.png");
+                ImageIcon ATraveler = new ImageIcon(ncATraveler);
+                bAscencion.setIcon(ATraveler);
+                charSelected.setText("A.Traveler");
+              break;
+            case "Ayaka":
+                URL ncAyaka = GUI.class.getResource("/namecards/Ayaka.png");
+                ImageIcon Ayaka = new ImageIcon(ncAyaka);
+                bAscencion.setIcon(Ayaka);
+                charSelected.setText("Ayaka");
+              break;
+            case "Barbara": //Select Barbara Namecard
+                URL ncBarbara = GUI.class.getResource("/namecards/Barbara.png");
+                ImageIcon Barbara = new ImageIcon(ncBarbara);
+                bAscencion.setIcon(Barbara);
+                charSelected.setText("Barbara");
+              break;
+            case "Beidou": //Select Beidou Namecard
+                URL ncBeidou = GUI.class.getResource("/namecards/Beidou.png");
+                ImageIcon Beidou = new ImageIcon(ncBeidou);
+                bAscencion.setIcon(Beidou);
+                charSelected.setText("Beidou");
+              break;
+            case "Bennett": //Select Bennett Namecard
+                URL ncBennett = GUI.class.getResource("/namecards/Bennett.png");
+                ImageIcon Bennett = new ImageIcon(ncBennett);
+                bAscencion.setIcon(Bennett);
+                charSelected.setText("Bennett");
+              break;
+            case "Chongyun": //Select Chongyun Namecard
+                URL ncChongyun = GUI.class.getResource("/namecards/Chongyun.png");
+                ImageIcon Chongyun = new ImageIcon(ncChongyun);
+                bAscencion.setIcon(Chongyun);
+                charSelected.setText("Chongyun");
+              break;
+            case "Diluc": //Select Diluc Namecard
+                URL ncDiluc = GUI.class.getResource("/namecards/Diluc.png");
+                ImageIcon Diluc = new ImageIcon(ncDiluc);
+                bAscencion.setIcon(Diluc);
+                charSelected.setText("Diluc");
+              break;
+            case "Diona": //Select Diona Namecard
+                URL ncDiona = GUI.class.getResource("/namecards/Diona.png");
+                ImageIcon Diona = new ImageIcon(ncDiona);
+                bAscencion.setIcon(Diona);
+                charSelected.setText("Diona");
+              break;
+            case "Eula": //Select Eula Namecard
+                URL ncEula = GUI.class.getResource("/namecards/Eula.png");
+                ImageIcon Eula = new ImageIcon(ncEula);
+                bAscencion.setIcon(Eula);
+                charSelected.setText("Eula");
+              break;
+            case "Fischl": //Select Fischl Namecard
+                URL ncFischl = GUI.class.getResource("/namecards/Fischl.png");
+                ImageIcon Fischl = new ImageIcon(ncFischl);
+                bAscencion.setIcon(Fischl);
+                charSelected.setText("Fischl");
+              break;
+            case "Ganyu": //Select Ganyu Namecard
+                URL ncGanyu = GUI.class.getResource("/namecards/Ganyu.png");
+                ImageIcon Ganyu = new ImageIcon(ncGanyu);
+                bAscencion.setIcon(Ganyu);
+                charSelected.setText("Ganyu");
+              break;
+            case "G.Traveler": //Select Geo Traveler Namecard
+                URL ncGTraveler = GUI.class.getResource("/namecards/Geo Traveler.png");
+                ImageIcon GTraveler = new ImageIcon(ncGTraveler);
+                bAscencion.setIcon(GTraveler);
+                charSelected.setText("G.Traveler");
+              break;
+            case "Hu Tao":
+                URL ncHuTao = GUI.class.getResource("/namecards/Hu Tao.png");
+                ImageIcon HuTao = new ImageIcon(ncHuTao);
+                bAscencion.setIcon(HuTao);
+                charSelected.setText("Hu Tao");
+              break;
+            case "Jean":
+                URL ncJean = GUI.class.getResource("/namecards/Jean.png");
+                ImageIcon Jean = new ImageIcon(ncJean);
+                bAscencion.setIcon(Jean);
+                charSelected.setText("Jean");
+              break;
+            case "Kaeya":
+                URL ncKaeya = GUI.class.getResource("/namecards/Kaeya.png");
+                ImageIcon Kaeya = new ImageIcon(ncKaeya);
+                bAscencion.setIcon(Kaeya);
+                charSelected.setText("Kaeya");
+              break;
+            case "Kazuha":
+                URL ncKazuha = GUI.class.getResource("/namecards/Kazuha.png");
+                ImageIcon Kazuha = new ImageIcon(ncKazuha);
+                bAscencion.setIcon(Kazuha);
+                charSelected.setText("Kazuha");
+              break;
+            case "Keqing":
+                URL ncKeqing = GUI.class.getResource("/namecards/Keqing.png");
+                ImageIcon Keqing = new ImageIcon(ncKeqing);
+                bAscencion.setIcon(Keqing);
+                charSelected.setText("Keqing");
+              break;
+            case "Klee":
+                URL ncKlee = GUI.class.getResource("/namecards/Klee.png");
+                ImageIcon Klee = new ImageIcon(ncKlee);
+                bAscencion.setIcon(Klee);
+                charSelected.setText("Klee");
+              break;
+            case "Lisa":
+                URL ncLisa = GUI.class.getResource("/namecards/Lisa.png");
+                ImageIcon Lisa = new ImageIcon(ncLisa);
+                bAscencion.setIcon(Lisa);
+                charSelected.setText("Lisa");
+              break;
+            case "Mona":
+                URL ncMona = GUI.class.getResource("/namecards/Mona.png");
+                ImageIcon Mona = new ImageIcon(ncMona);
+                bAscencion.setIcon(Mona);
+                charSelected.setText("Mona");
+              break;
+            case "Ningguang":
+                URL ncNingguang = GUI.class.getResource("/namecards/Ningguang.png");
+                ImageIcon Ningguang = new ImageIcon(ncNingguang);
+                bAscencion.setIcon(Ningguang);
+                charSelected.setText("Ningguang");
+              break;
+            case "Noelle":
+                URL ncNoelle = GUI.class.getResource("/namecards/Noelle.png");
+                ImageIcon Noelle = new ImageIcon(ncNoelle);
+                bAscencion.setIcon(Noelle);
+                charSelected.setText("Noelle");
+              break;
+            case "Qiqi":
+                URL ncQiqi = GUI.class.getResource("/namecards/Qiqi.png");
+                ImageIcon Qiqi = new ImageIcon(ncQiqi);
+                bAscencion.setIcon(Qiqi);
+                charSelected.setText("Qiqi");
+              break;
+            case "Razor": //Select Razor Namecard
+                URL ncRazor = GUI.class.getResource("/namecards/Razor.png");
+                ImageIcon Razor = new ImageIcon(ncRazor);
+                bAscencion.setIcon(Razor);
+                charSelected.setText("Razor");
+              break;
+            case "Rosaria":
+                URL ncRosaria = GUI.class.getResource("/namecards/Rosaria.png");
+                ImageIcon Rosaria = new ImageIcon(ncRosaria);
+                bAscencion.setIcon(Rosaria);
+                charSelected.setText("Rosaria");
+              break;
+            case "Sayu":
+                URL ncSayu = GUI.class.getResource("/namecards/Sayu.png");
+                ImageIcon Sayu = new ImageIcon(ncSayu);
+                bAscencion.setIcon(Sayu);
+                charSelected.setText("Sayu");
+              break;
+            case "Sucrose":
+                URL ncSucrose = GUI.class.getResource("/namecards/Sucrose.png");
+                ImageIcon Sucrose = new ImageIcon(ncSucrose);
+                bAscencion.setIcon(Sucrose);
+                charSelected.setText("Sucrose");
+              break;
+            case "Tartaglia":
+                URL ncTartaglia = GUI.class.getResource("/namecards/Tartaglia.png");
+                ImageIcon Tartaglia = new ImageIcon(ncTartaglia);
+                bAscencion.setIcon(Tartaglia);
+                charSelected.setText("Tartaglia");
+              break;
+            case "Xiangling":
+                URL ncXiangling = GUI.class.getResource("/namecards/Xiangling.png");
+                ImageIcon Xiangling = new ImageIcon(ncXiangling);
+                bAscencion.setIcon(Xiangling);
+                charSelected.setText("Xiangling");
+              break;
+            case "Xiao":
+                URL ncXiao = GUI.class.getResource("/namecards/Xiao.png");
+                ImageIcon Xiao = new ImageIcon(ncXiao);
+                bAscencion.setIcon(Xiao);
+                charSelected.setText("Xiao");
+              break;
+            case "Xingqiu":
+                URL ncXingqiu = GUI.class.getResource("/namecards/Xingqiu.png");
+                ImageIcon Xingqiu = new ImageIcon(ncXingqiu);
+                bAscencion.setIcon(Xingqiu);
+                charSelected.setText("Xingqiu");
+              break;
+            case "Xinyan":
+                URL ncXinyan = GUI.class.getResource("/namecards/Xinyan.png");
+                ImageIcon Xinyan = new ImageIcon(ncXinyan);
+                bAscencion.setIcon(Xinyan);
+                charSelected.setText("Xinyan");
+              break;
+            case "Yanfei":
+                URL ncYanfei = GUI.class.getResource("/namecards/Yanfei.png");
+                ImageIcon Yanfei = new ImageIcon(ncYanfei);
+                bAscencion.setIcon(Yanfei);
+                charSelected.setText("Yanfei");
+              break;
+            case "Yoimiya":
+                URL ncYoimiya = GUI.class.getResource("/namecards/Yoimiya.png");
+                ImageIcon Yoimiya = new ImageIcon(ncYoimiya);
+                bAscencion.setIcon(Yoimiya);
+                charSelected.setText("Yoimiya");
+              break;
+            case "Zhongli":
+                URL ncZhongli = GUI.class.getResource("/namecards/Zhongli.png");
+                ImageIcon Zhongli = new ImageIcon(ncZhongli);
+                bAscencion.setIcon(Zhongli);
+                charSelected.setText("Zhongli");
+              break;
+            case "":
+            break;
+        }
+        
+        count = 0;
+    }                                        
+
+    private void bSplashMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        bSplash.setVisible(false);
+        Menu.setVisible(true);
+        Tabs.setVisible(true);
+        
+        pAscencion.setVisible(true);
+        bWeapons.setVisible(false);
+        pInfo.setVisible(false);
+            infoTalents.setVisible(false);
+        pRolls.setVisible(false);
+        
+        Ascencion.setBackground(java.awt.Color.lightGray);
+    }                                    
+
+    private void bListMouseClicked(java.awt.event.MouseEvent evt) {                                   
+
+        if (count == 0){
+            charList.showPopup();
+            count++;
+        } else if (count == 1){
+            charList.hidePopup();
+            count--;
+        }
+    }                                  
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {                                
+        if(evt.getKeyCode() == KeyEvent.VK_F5 && AoT == false){
+            setAlwaysOnTop(true);
+            AoT = true;
+        } else {
+            setAlwaysOnTop(false);
+            AoT = false;
+        } 
+    }                               
+
+    private void bListMousePressed(java.awt.event.MouseEvent evt) {                                   
+        bList.setSize(13,9);
+        bList.setLocation(161, 228);
+    }                                  
+
+    private void bListMouseReleased(java.awt.event.MouseEvent evt) {                                    
+        bList.setSize(14,10);
+        bList.setLocation(160, 227);
+    }                                   
+
+    private void sPhaseStateChanged(javax.swing.event.ChangeEvent evt) {                                    
+        int value = sPhase.getValue();
+       
+        switch (value) {
+            case 0:
+                //Phase 1
+                lSliver.setText("1");
+                lFragment.setText("0");
+                lChunk.setText("0");
+                lGemstone.setText("0");
+                lBoss.setText("0");
+                lTalent1.setText("9");
+                lTalent2.setText("0");
+                lTalent3.setText("0");
+                lTalent4.setText("0");
+                lTalent5.setText("0");
+                lCommon1.setText("21");
+                lCommon2.setText("0");
+                lCommon3.setText("0");
+                lSpecialty.setText("3");
+                break;
+            case 1:
+                //Phase 2
+                lSliver.setText("1");
+                lFragment.setText("3");
+                lChunk.setText("0");
+                lGemstone.setText("0");
+                lBoss.setText("2");
+                lTalent1.setText("9");
+                lTalent2.setText("0");
+                lTalent3.setText("0");
+                lTalent4.setText("0");
+                lTalent5.setText("0");
+                lCommon1.setText("36");
+                lCommon2.setText("0");
+                lCommon3.setText("0");
+                lSpecialty.setText("13");
+                break;
+            case 2:
+                //Phase 3
+                lSliver.setText("1");
+                lFragment.setText("9");
+                lChunk.setText("0");
+                lGemstone.setText("0");
+                lBoss.setText("6");
+                lTalent1.setText("9");
+                lTalent2.setText("18");
+                lTalent3.setText("0");
+                lTalent4.setText("0");
+                lTalent5.setText("0");
+                lCommon1.setText("36");
+                lCommon2.setText("33");
+                lCommon3.setText("0");
+                lSpecialty.setText("33");
+                break;
+            case 3:
+                //Phase 4
+                lSliver.setText("1");
+                lFragment.setText("9");
+                lChunk.setText("3");
+                lGemstone.setText("0");
+                lBoss.setText("14");
+                lTalent1.setText("9");
+                lTalent2.setText("63");
+                lTalent3.setText("0");
+                lTalent4.setText("0");
+                lTalent5.setText("0");
+                lCommon1.setText("36");
+                lCommon2.setText("96");
+                lCommon3.setText("0");
+                lSpecialty.setText("63");
+                break;
+            case 4:
+                //Phase 5
+                lSliver.setText("1");
+                lFragment.setText("9");
+                lChunk.setText("9");
+                lGemstone.setText("0");
+                lBoss.setText("26");
+                lTalent1.setText("9");
+                lTalent2.setText("63");
+                lTalent3.setText("30");
+                lTalent4.setText("6");
+                lTalent5.setText("0");
+                lCommon1.setText("36");
+                lCommon2.setText("96");
+                lCommon3.setText("42");
+                lSpecialty.setText("108");
+                break;
+            case 5:
+                //Phase 6
+                lSliver.setText("1");
+                lFragment.setText("9");
+                lChunk.setText("9");
+                lGemstone.setText("6");
+                lBoss.setText("46");
+                lTalent1.setText("9");
+                lTalent2.setText("63");
+                lTalent3.setText("114");
+                lTalent4.setText("18");
+                lTalent5.setText("3");
+                lCommon1.setText("36");
+                lCommon2.setText("96");
+                lCommon3.setText("129");
+                lSpecialty.setText("168");
+                break;
+            default:
+                break;
+        }
+        
+    }                                   
+
+    private void cAlbedoMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cAlbedoBig = GUI.class.getResource("/cards/Albedo Big.png");
+        ImageIcon cardAlbedo = new ImageIcon(cAlbedoBig);
+        cAlbedo.setIcon(cardAlbedo);
+        cAlbedo.setSize(147,175);
+        cAlbedo.setLocation(2,2);
+    }                                    
+
+    private void cAlbedoMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cAlbedoSmall = GUI.class.getResource("/cards/Albedo.png");
+        ImageIcon cardAlbedo = new ImageIcon(cAlbedoSmall);
+        cAlbedo.setIcon(cardAlbedo);
+        cAlbedo.setSize(132,158);
+        cAlbedo.setLocation(10,10);
+    }                                   
+
+    private void cAlbedoMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncAlbedo = GUI.class.getResource("/namecards/Albedo.png");
+        ImageIcon Albedo = new ImageIcon(ncAlbedo);
+        bAscencion.setIcon(Albedo);
+        charSelected.setText("Albedo");
+    }                                    
+
+    private void cAmberMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cAmberBig = GUI.class.getResource("/cards/Amber Big.png");
+        ImageIcon cardAmber = new ImageIcon(cAmberBig);
+        cAmber.setIcon(cardAmber);
+        cAmber.setSize(147,175);
+        cAmber.setLocation(142,2);
+    }                                   
+
+    private void cAmberMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cAmberSmall = GUI.class.getResource("/cards/Amber.png");
+        ImageIcon cardAmber = new ImageIcon(cAmberSmall);
+        cAmber.setIcon(cardAmber);
+        cAmber.setSize(132,158);
+        cAmber.setLocation(150,10);
+    }                                  
+
+    private void cAmberMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncAmber = GUI.class.getResource("/namecards/Amber.png");
+        ImageIcon Amber = new ImageIcon(ncAmber);
+        bAscencion.setIcon(Amber);
+        charSelected.setText("Amber");
+    }                                   
+
+    private void cAyakaMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cAyakaBig = GUI.class.getResource("/cards/Ayaka Big.png");
+        ImageIcon cardAyaka = new ImageIcon(cAyakaBig);
+        cAyaka.setIcon(cardAyaka);
+        cAyaka.setSize(147,175);
+        cAyaka.setLocation(282,2);
+    }                                   
+
+    private void cAyakaMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cAyakaSmall = GUI.class.getResource("/cards/Ayaka.png");
+        ImageIcon cardAyaka = new ImageIcon(cAyakaSmall);
+        cAyaka.setIcon(cardAyaka);
+        cAyaka.setSize(132,158);
+        cAyaka.setLocation(290,10);
+    }                                  
+
+    private void cAyakaMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncAyaka = GUI.class.getResource("/namecards/Ayaka.png");
+        ImageIcon Ayaka = new ImageIcon(ncAyaka);
+        bAscencion.setIcon(Ayaka);
+        charSelected.setText("Ayaka");
+    }                                   
+
+    private void cBarbaraMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cBarbaraBig = GUI.class.getResource("/cards/Barbara Big.png");
+        ImageIcon cardBarbara = new ImageIcon(cBarbaraBig);
+        cBarbara.setIcon(cardBarbara);
+        cBarbara.setSize(147,175);
+        cBarbara.setLocation(422,2);
+    }                                     
+
+    private void cBarbaraMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cBarbaraSmall = GUI.class.getResource("/cards/Barbara.png");
+        ImageIcon cardBarbara = new ImageIcon(cBarbaraSmall);
+        cBarbara.setIcon(cardBarbara);
+        cBarbara.setSize(132,158);
+        cBarbara.setLocation(430,10);
+    }                                    
+
+    private void cBarbaraMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncBarbara = GUI.class.getResource("/namecards/Barbara.png");
+        ImageIcon Barbara = new ImageIcon(ncBarbara);
+        bAscencion.setIcon(Barbara);
+        charSelected.setText("Barbara");
+    }                                     
+
+    private void cBeidouMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cBeidouBig = GUI.class.getResource("/cards/Beidou Big.png");
+        ImageIcon cardBeidou = new ImageIcon(cBeidouBig);
+        cBeidou.setIcon(cardBeidou);
+        cBeidou.setSize(147,175);
+        cBeidou.setLocation(562,2);
+    }                                    
+
+    private void cBeidouMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cBeidouSmall = GUI.class.getResource("/cards/Beidou.png");
+        ImageIcon cardBeidou = new ImageIcon(cBeidouSmall);
+        cBeidou.setIcon(cardBeidou);
+        cBeidou.setSize(132,158);
+        cBeidou.setLocation(570,10);
+    }                                   
+
+    private void cBeidouMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncBeidou = GUI.class.getResource("/namecards/Beidou.png");
+        ImageIcon Beidou = new ImageIcon(ncBeidou);
+        bAscencion.setIcon(Beidou);
+        charSelected.setText("Beidou");
+    }                                    
+
+    private void cBennettMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cBennettBig = GUI.class.getResource("/cards/Bennett Big.png");
+        ImageIcon cardBennett = new ImageIcon(cBennettBig);
+        cBennett.setIcon(cardBennett);
+        cBennett.setSize(147,175);
+        cBennett.setLocation(2,172);
+    }                                     
+
+    private void cBennettMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cBennettSmall = GUI.class.getResource("/cards/Bennett.png");
+        ImageIcon cardBennett = new ImageIcon(cBennettSmall);
+        cBennett.setIcon(cardBennett);
+        cBennett.setSize(132,158);
+        cBennett.setLocation(10,180);
+    }                                    
+
+    private void cBennettMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncBennett = GUI.class.getResource("/namecards/Bennett.png");
+        ImageIcon Bennett = new ImageIcon(ncBennett);
+        bAscencion.setIcon(Bennett);
+        charSelected.setText("Bennett");
+    }                                     
+
+    private void cChongyunMouseEntered(java.awt.event.MouseEvent evt) {                                       
+        URL cChongyunBig = GUI.class.getResource("/cards/Chongyun Big.png");
+        ImageIcon cardChongyun = new ImageIcon(cChongyunBig);
+        cChongyun.setIcon(cardChongyun);
+        cChongyun.setSize(147,175);
+        cChongyun.setLocation(142,172);
+    }                                      
+
+    private void cChongyunMouseExited(java.awt.event.MouseEvent evt) {                                      
+        URL cChongyunSmall = GUI.class.getResource("/cards/Chongyun.png");
+        ImageIcon cardChongyun = new ImageIcon(cChongyunSmall);
+        cChongyun.setIcon(cardChongyun);
+        cChongyun.setSize(132,158);
+        cChongyun.setLocation(150,180);
+    }                                     
+
+    private void cChongyunMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        cardPane.setVisible(false);
+        URL ncChongyun = GUI.class.getResource("/namecards/Chongyun.png");
+        ImageIcon Chongyun = new ImageIcon(ncChongyun);
+        bAscencion.setIcon(Chongyun);
+        charSelected.setText("Chongyun");
+    }                                      
+
+    private void cDilucMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cDilucBig = GUI.class.getResource("/cards/Diluc Big.png");
+        ImageIcon cardDiluc = new ImageIcon(cDilucBig);
+        cDiluc.setIcon(cardDiluc);
+        cDiluc.setSize(147,175);
+        cDiluc.setLocation(282,172);
+    }                                   
+
+    private void cDilucMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cDilucSmall = GUI.class.getResource("/cards/Diluc.png");
+        ImageIcon cardDiluc = new ImageIcon(cDilucSmall);
+        cDiluc.setIcon(cardDiluc);
+        cDiluc.setSize(132,158);
+        cDiluc.setLocation(290,180);
+    }                                  
+
+    private void cDilucMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncDiluc = GUI.class.getResource("/namecards/Diluc.png");
+        ImageIcon Diluc = new ImageIcon(ncDiluc);
+        bAscencion.setIcon(Diluc);
+        charSelected.setText("Diluc");
+    }                                   
+
+    private void cDionaMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cDionaBig = GUI.class.getResource("/cards/Diona Big.png");
+        ImageIcon cardDiona = new ImageIcon(cDionaBig);
+        cDiona.setIcon(cardDiona);
+        cDiona.setSize(147,175);
+        cDiona.setLocation(422,172);
+    }                                   
+
+    private void cDionaMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cDionaSmall = GUI.class.getResource("/cards/Diona.png");
+        ImageIcon cardDiona = new ImageIcon(cDionaSmall);
+        cDiona.setIcon(cardDiona);
+        cDiona.setSize(132,158);
+        cDiona.setLocation(430,180);
+    }                                  
+
+    private void cDionaMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncDiona = GUI.class.getResource("/namecards/Diona.png");
+        ImageIcon Diona = new ImageIcon(ncDiona);
+        bAscencion.setIcon(Diona);
+        charSelected.setText("Diona");
+    }                                   
+
+    private void cEulaMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cEulaBig = GUI.class.getResource("/cards/Eula Big.png");
+        ImageIcon cardEula = new ImageIcon(cEulaBig);
+        cEula.setIcon(cardEula);
+        cEula.setSize(147,175);
+        cEula.setLocation(562,172);
+    }                                  
+
+    private void cEulaMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cEulaSmall = GUI.class.getResource("/cards/Eula.png");
+        ImageIcon cardEula = new ImageIcon(cEulaSmall);
+        cEula.setIcon(cardEula);
+        cEula.setSize(132,158);
+        cEula.setLocation(570,180);
+    }                                 
+
+    private void cEulaMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncEula = GUI.class.getResource("/namecards/Eula.png");
+        ImageIcon Eula = new ImageIcon(ncEula);
+        bAscencion.setIcon(Eula);
+        charSelected.setText("Eula");
+    }                                  
+
+    private void cFischlMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cFischlBig = GUI.class.getResource("/cards/Fischl Big.png");
+        ImageIcon cardFischl = new ImageIcon(cFischlBig);
+        cFischl.setIcon(cardFischl);
+        cFischl.setSize(147,175);
+        cFischl.setLocation(2,342);
+    }                                    
+
+    private void cFischlMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cFischlSmall = GUI.class.getResource("/cards/Fischl.png");
+        ImageIcon cardFischl = new ImageIcon(cFischlSmall);
+        cFischl.setIcon(cardFischl);
+        cFischl.setSize(132,158);
+        cFischl.setLocation(10,350);
+    }                                   
+
+    private void cFischlMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncFischl = GUI.class.getResource("/namecards/Fischl.png");
+        ImageIcon Fischl = new ImageIcon(ncFischl);
+        bAscencion.setIcon(Fischl);
+        charSelected.setText("Fischl");
+    }                                    
+
+    private void cGanyuMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cGanyuBig = GUI.class.getResource("/cards/Ganyu Big.png");
+        ImageIcon cardGanyu = new ImageIcon(cGanyuBig);
+        cGanyu.setIcon(cardGanyu);
+        cGanyu.setSize(147,175);
+        cGanyu.setLocation(142,342);
+    }                                   
+
+    private void cGanyuMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cGanyuSmall = GUI.class.getResource("/cards/Ganyu.png");
+        ImageIcon cardGanyu = new ImageIcon(cGanyuSmall);
+        cGanyu.setIcon(cardGanyu);
+        cGanyu.setSize(132,158);
+        cGanyu.setLocation(150,350);
+    }                                  
+
+    private void cGanyuMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncGanyu = GUI.class.getResource("/namecards/Ganyu.png");
+        ImageIcon Ganyu = new ImageIcon(ncGanyu);
+        bAscencion.setIcon(Ganyu);
+        charSelected.setText("Ganyu");
+    }                                   
+
+    private void cHuTaoMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cHuTaoBig = GUI.class.getResource("/cards/Hu Tao Big.png");
+        ImageIcon cardHuTao = new ImageIcon(cHuTaoBig);
+        cHuTao.setIcon(cardHuTao);
+        cHuTao.setSize(147,175);
+        cHuTao.setLocation(282,342);
+    }                                   
+
+    private void cHuTaoMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cHuTaoSmall = GUI.class.getResource("/cards/Hu Tao.png");
+        ImageIcon cardHuTao = new ImageIcon(cHuTaoSmall);
+        cHuTao.setIcon(cardHuTao);
+        cHuTao.setSize(132,158);
+        cHuTao.setLocation(290,350);
+    }                                  
+
+    private void cHuTaoMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncHuTao = GUI.class.getResource("/namecards/Hu Tao.png");
+        ImageIcon HuTao = new ImageIcon(ncHuTao);
+        bAscencion.setIcon(HuTao);
+        charSelected.setText("Hu Tao");
+    }                                   
+
+    private void cJeanMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cJeanBig = GUI.class.getResource("/cards/Jean Big.png");
+        ImageIcon cardJean = new ImageIcon(cJeanBig);
+        cJean.setIcon(cardJean);
+        cJean.setSize(147,175);
+        cJean.setLocation(422,342);
+    }                                  
+
+    private void cJeanMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cJeanSmall = GUI.class.getResource("/cards/Jean.png");
+        ImageIcon cardJean = new ImageIcon(cJeanSmall);
+        cJean.setIcon(cardJean);
+        cJean.setSize(132,158);
+        cJean.setLocation(430,350);
+    }                                 
+
+    private void cJeanMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncJean = GUI.class.getResource("/namecards/Jean.png");
+        ImageIcon Jean = new ImageIcon(ncJean);
+        bAscencion.setIcon(Jean);
+        charSelected.setText("Jean");
+    }                                  
+
+    private void cKaeyaMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cKaeyaBig = GUI.class.getResource("/cards/Kaeya Big.png");
+        ImageIcon cardKaeya = new ImageIcon(cKaeyaBig);
+        cKaeya.setIcon(cardKaeya);
+        cKaeya.setSize(147,175);
+        cKaeya.setLocation(562,342);
+    }                                   
+
+    private void cKaeyaMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cKaeyaSmall = GUI.class.getResource("/cards/Kaeya.png");
+        ImageIcon cardKaeya = new ImageIcon(cKaeyaSmall);
+        cKaeya.setIcon(cardKaeya);
+        cKaeya.setSize(132,158);
+        cKaeya.setLocation(570,350);
+    }                                  
+
+    private void cKaeyaMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncKaeya = GUI.class.getResource("/namecards/Kaeya.png");
+        ImageIcon Kaeya = new ImageIcon(ncKaeya);
+        bAscencion.setIcon(Kaeya);
+        charSelected.setText("Kaeya");
+    }                                   
+
+    private void cKazuhaMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cKazuhaBig = GUI.class.getResource("/cards/Kazuha Big.png");
+        ImageIcon cardKazuha = new ImageIcon(cKazuhaBig);
+        cKazuha.setIcon(cardKazuha);
+        cKazuha.setSize(147,175);
+        cKazuha.setLocation(2,512);
+    }                                    
+
+    private void cKazuhaMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cKazuhaSmall = GUI.class.getResource("/cards/Kazuha.png");
+        ImageIcon cardKazuha = new ImageIcon(cKazuhaSmall);
+        cKazuha.setIcon(cardKazuha);
+        cKazuha.setSize(132,158);
+        cKazuha.setLocation(10,520);
+    }                                   
+
+    private void cKazuhaMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncKazuha = GUI.class.getResource("/namecards/Kazuha.png");
+        ImageIcon Kazuha = new ImageIcon(ncKazuha);
+        bAscencion.setIcon(Kazuha);
+        charSelected.setText("Kazuha");
+    }                                    
+
+    private void cKeqingMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cKeqingBig = GUI.class.getResource("/cards/Keqing Big.png");
+        ImageIcon cardKeqing = new ImageIcon(cKeqingBig);
+        cKeqing.setIcon(cardKeqing);
+        cKeqing.setSize(147,175);
+        cKeqing.setLocation(142,512);
+    }                                    
+
+    private void cKeqingMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cKeqingSmall = GUI.class.getResource("/cards/Keqing.png");
+        ImageIcon cardKeqing = new ImageIcon(cKeqingSmall);
+        cKeqing.setIcon(cardKeqing);
+        cKeqing.setSize(132,158);
+        cKeqing.setLocation(150,520);
+    }                                   
+
+    private void cKeqingMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncKeqing = GUI.class.getResource("/namecards/Keqing.png");
+        ImageIcon Keqing = new ImageIcon(ncKeqing);
+        bAscencion.setIcon(Keqing);
+        charSelected.setText("Keqing");
+    }                                    
+
+    private void cKleeMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cKleeBig = GUI.class.getResource("/cards/Klee Big.png");
+        ImageIcon cardKlee = new ImageIcon(cKleeBig);
+        cKlee.setIcon(cardKlee);
+        cKlee.setSize(147,175);
+        cKlee.setLocation(282,512);   
+    }                                  
+
+    private void cKleeMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cKleeSmall = GUI.class.getResource("/cards/Klee.png");
+        ImageIcon cardKlee = new ImageIcon(cKleeSmall);
+        cKlee.setIcon(cardKlee);
+        cKlee.setSize(132,158);
+        cKlee.setLocation(290,520);
+    }                                 
+
+    private void cKleeMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncKlee = GUI.class.getResource("/namecards/Klee.png");
+        ImageIcon Klee = new ImageIcon(ncKlee);
+        bAscencion.setIcon(Klee);
+        charSelected.setText("Klee");
+    }                                  
+
+    private void cLisaMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cLisaBig = GUI.class.getResource("/cards/Lisa Big.png");
+        ImageIcon cardLisa = new ImageIcon(cLisaBig);
+        cLisa.setIcon(cardLisa);
+        cLisa.setSize(147,175);
+        cLisa.setLocation(422,512); 
+    }                                  
+
+    private void cLisaMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cLisaSmall = GUI.class.getResource("/cards/Lisa.png");
+        ImageIcon cardLisa = new ImageIcon(cLisaSmall);
+        cLisa.setIcon(cardLisa);
+        cLisa.setSize(132,158);
+        cLisa.setLocation(430,520);
+    }                                 
+
+    private void cLisaMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncLisa = GUI.class.getResource("/namecards/Lisa.png");
+        ImageIcon Lisa = new ImageIcon(ncLisa);
+        bAscencion.setIcon(Lisa);
+        charSelected.setText("Lisa");
+    }                                  
+
+    private void cMonaMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cMonaBig = GUI.class.getResource("/cards/Mona Big.png");
+        ImageIcon cardMona = new ImageIcon(cMonaBig);
+        cMona.setIcon(cardMona);
+        cMona.setSize(147,175);
+        cMona.setLocation(562,512); 
+    }                                  
+
+    private void cMonaMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cMonaSmall = GUI.class.getResource("/cards/Mona.png");
+        ImageIcon cardMona = new ImageIcon(cMonaSmall);
+        cMona.setIcon(cardMona);
+        cMona.setSize(132,158);
+        cMona.setLocation(570,520);
+    }                                 
+
+    private void cMonaMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncMona = GUI.class.getResource("/namecards/Mona.png");
+        ImageIcon Mona = new ImageIcon(ncMona);
+        bAscencion.setIcon(Mona);
+        charSelected.setText("Mona");
+    }                                  
+
+    private void cNingguangMouseEntered(java.awt.event.MouseEvent evt) {                                        
+        URL cNingguangBig = GUI.class.getResource("/cards/Ningguang Big.png");
+        ImageIcon cardNingguang = new ImageIcon(cNingguangBig);
+        cNingguang.setIcon(cardNingguang);
+        cNingguang.setSize(147,175);
+        cNingguang.setLocation(2,682); 
+    }                                       
+
+    private void cNingguangMouseExited(java.awt.event.MouseEvent evt) {                                       
+        URL cNingguangSmall = GUI.class.getResource("/cards/Ningguang.png");
+        ImageIcon cardNingguang = new ImageIcon(cNingguangSmall);
+        cNingguang.setIcon(cardNingguang);
+        cNingguang.setSize(132,158);
+        cNingguang.setLocation(10,690);
+    }                                      
+
+    private void cNingguangMouseClicked(java.awt.event.MouseEvent evt) {                                        
+        cardPane.setVisible(false);
+        URL ncNingguang = GUI.class.getResource("/namecards/Ningguang.png");
+        ImageIcon Ningguang = new ImageIcon(ncNingguang);
+        bAscencion.setIcon(Ningguang);
+        charSelected.setText("Ningguang");
+    }                                       
+
+    private void cNoelleMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cNoelleBig = GUI.class.getResource("/cards/Noelle Big.png");
+        ImageIcon cardNoelle = new ImageIcon(cNoelleBig);
+        cNoelle.setIcon(cardNoelle);
+        cNoelle.setSize(147,175);
+        cNoelle.setLocation(142,682); 
+    }                                    
+
+    private void cNoelleMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cNoelleSmall = GUI.class.getResource("/cards/Noelle.png");
+        ImageIcon cardNoelle = new ImageIcon(cNoelleSmall);
+        cNoelle.setIcon(cardNoelle);
+        cNoelle.setSize(132,158);
+        cNoelle.setLocation(150,690);
+    }                                   
+
+    private void cNoelleMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncNoelle = GUI.class.getResource("/namecards/Noelle.png");
+        ImageIcon Noelle = new ImageIcon(ncNoelle);
+        bAscencion.setIcon(Noelle);
+        charSelected.setText("Noelle");
+    }                                    
+
+    private void cQiqiMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cQiqiBig = GUI.class.getResource("/cards/Qiqi Big.png");
+        ImageIcon cardQiqi = new ImageIcon(cQiqiBig);
+        cQiqi.setIcon(cardQiqi);
+        cQiqi.setSize(147,175);
+        cQiqi.setLocation(282,682); 
+    }                                  
+
+    private void cQiqiMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cQiqiSmall = GUI.class.getResource("/cards/Qiqi.png");
+        ImageIcon cardQiqi = new ImageIcon(cQiqiSmall);
+        cQiqi.setIcon(cardQiqi);
+        cQiqi.setSize(132,158);
+        cQiqi.setLocation(290,690); 
+    }                                 
+
+    private void cQiqiMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncQiqi = GUI.class.getResource("/namecards/Qiqi.png");
+        ImageIcon Qiqi = new ImageIcon(ncQiqi);
+        bAscencion.setIcon(Qiqi);
+        charSelected.setText("Qiqi");
+    }                                  
+
+    private void cRazorMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cRazorBig = GUI.class.getResource("/cards/Razor Big.png");
+        ImageIcon cardRazor = new ImageIcon(cRazorBig);
+        cRazor.setIcon(cardRazor);
+        cRazor.setSize(147,175);
+        cRazor.setLocation(422,682); 
+    }                                   
+
+    private void cRazorMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cRazorSmall = GUI.class.getResource("/cards/Razor.png");
+        ImageIcon cardRazor = new ImageIcon(cRazorSmall);
+        cRazor.setIcon(cardRazor);
+        cRazor.setSize(132,158);
+        cRazor.setLocation(430,690); 
+    }                                  
+
+    private void cRazorMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncRazor = GUI.class.getResource("/namecards/Razor.png");
+        ImageIcon Razor = new ImageIcon(ncRazor);
+        bAscencion.setIcon(Razor);
+        charSelected.setText("Razor");
+    }                                   
+
+    private void cRosariaMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cRosariaBig = GUI.class.getResource("/cards/Rosaria Big.png");
+        ImageIcon cardRosaria = new ImageIcon(cRosariaBig);
+        cRosaria.setIcon(cardRosaria);
+        cRosaria.setSize(147,175);
+        cRosaria.setLocation(562,682); 
+    }                                     
+
+    private void cRosariaMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cRosariaSmall = GUI.class.getResource("/cards/Rosaria.png");
+        ImageIcon cardRosaria = new ImageIcon(cRosariaSmall);
+        cRosaria.setIcon(cardRosaria);
+        cRosaria.setSize(132,158);
+        cRosaria.setLocation(570,690); 
+    }                                    
+
+    private void cRosariaMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncRosaria = GUI.class.getResource("/namecards/Rosaria.png");
+        ImageIcon Rosaria = new ImageIcon(ncRosaria);
+        bAscencion.setIcon(Rosaria);
+        charSelected.setText("Rosaria");
+    }                                     
+
+    private void cSayuMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cSayuBig = GUI.class.getResource("/cards/Sayu Big.png");
+        ImageIcon cardSayu = new ImageIcon(cSayuBig);
+        cSayu.setIcon(cardSayu);
+        cSayu.setSize(147,175);
+        cSayu.setLocation(2,852); 
+    }                                  
+
+    private void cSayuMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cSayuSmall = GUI.class.getResource("/cards/Sayu.png");
+        ImageIcon cardSayu = new ImageIcon(cSayuSmall);
+        cSayu.setIcon(cardSayu);
+        cSayu.setSize(132,158);
+        cSayu.setLocation(10,860); 
+    }                                 
+
+    private void cSayuMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncSayu = GUI.class.getResource("/namecards/Sayu.png");
+        ImageIcon Sayu = new ImageIcon(ncSayu);
+        bAscencion.setIcon(Sayu);
+        charSelected.setText("Sayu");
+    }                                  
+
+    private void cSucroseMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cSucroseBig = GUI.class.getResource("/cards/Sucrose Big.png");
+        ImageIcon cardSucrose = new ImageIcon(cSucroseBig);
+        cSucrose.setIcon(cardSucrose);
+        cSucrose.setSize(147,175);
+        cSucrose.setLocation(142,852); 
+    }                                     
+
+    private void cSucroseMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cSucroseSmall = GUI.class.getResource("/cards/Sucrose.png");
+        ImageIcon cardSucrose = new ImageIcon(cSucroseSmall);
+        cSucrose.setIcon(cardSucrose);
+        cSucrose.setSize(132,158);
+        cSucrose.setLocation(150,860); 
+    }                                    
+
+    private void cSucroseMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncSucrose = GUI.class.getResource("/namecards/Sucrose.png");
+        ImageIcon Sucrose = new ImageIcon(ncSucrose);
+        bAscencion.setIcon(Sucrose);
+        charSelected.setText("Sucrose");
+    }                                     
+
+    private void cTartagliaMouseEntered(java.awt.event.MouseEvent evt) {                                        
+        URL cTartagliaBig = GUI.class.getResource("/cards/Tartaglia Big.png");
+        ImageIcon cardTartaglia = new ImageIcon(cTartagliaBig);
+        cTartaglia.setIcon(cardTartaglia);
+        cTartaglia.setSize(147,175);
+        cTartaglia.setLocation(282,852); 
+    }                                       
+
+    private void cTartagliaMouseExited(java.awt.event.MouseEvent evt) {                                       
+        URL cTartagliaSmall = GUI.class.getResource("/cards/Tartaglia.png");
+        ImageIcon cardTartaglia = new ImageIcon(cTartagliaSmall);
+        cTartaglia.setIcon(cardTartaglia);
+        cTartaglia.setSize(132,158);
+        cTartaglia.setLocation(290,860); 
+    }                                      
+
+    private void cTartagliaMouseClicked(java.awt.event.MouseEvent evt) {                                        
+        cardPane.setVisible(false);
+        URL ncTartaglia = GUI.class.getResource("/namecards/Tartaglia.png");
+        ImageIcon Tartaglia = new ImageIcon(ncTartaglia);
+        bAscencion.setIcon(Tartaglia);
+        charSelected.setText("Tartaglia");
+    }                                       
+
+    private void cTravelerMouseEntered(java.awt.event.MouseEvent evt) {                                       
+        // TODO add your handling code here:
+    }                                      
+
+    private void cTravelerMouseExited(java.awt.event.MouseEvent evt) {                                      
+        // TODO add your handling code here:
+    }                                     
+
+    private void cTravelerMouseClicked(java.awt.event.MouseEvent evt) {                                       
+        JOptionPane.showMessageDialog(cardPane, "Coming Soon™");
+    }                                      
+
+    private void cVentiMouseEntered(java.awt.event.MouseEvent evt) {                                    
+        URL cVentiBig = GUI.class.getResource("/cards/Venti Big.png");
+        ImageIcon cardVenti = new ImageIcon(cVentiBig);
+        cVenti.setIcon(cardVenti);
+        cVenti.setSize(147,175);
+        cVenti.setLocation(562,852); 
+    }                                   
+
+    private void cVentiMouseExited(java.awt.event.MouseEvent evt) {                                   
+        URL cVentiSmall = GUI.class.getResource("/cards/Venti.png");
+        ImageIcon cardVenti = new ImageIcon(cVentiSmall);
+        cVenti.setIcon(cardVenti);
+        cVenti.setSize(132,158);
+        cVenti.setLocation(570,860); 
+    }                                  
+
+    private void cVentiMouseClicked(java.awt.event.MouseEvent evt) {                                    
+        cardPane.setVisible(false);
+        URL ncVenti = GUI.class.getResource("/namecards/Venti.png");
+        ImageIcon Venti = new ImageIcon(ncVenti);
+        bAscencion.setIcon(Venti);
+        charSelected.setText("Venti");
+    }                                   
+
+    private void cXianglingMouseEntered(java.awt.event.MouseEvent evt) {                                        
+        URL cXianglingBig = GUI.class.getResource("/cards/Xiangling Big.png");
+        ImageIcon cardXiangling = new ImageIcon(cXianglingBig);
+        cXiangling.setIcon(cardXiangling);
+        cXiangling.setSize(147,175);
+        cXiangling.setLocation(2,1022); 
+    }                                       
+
+    private void cXianglingMouseExited(java.awt.event.MouseEvent evt) {                                       
+        URL cXianglingSmall = GUI.class.getResource("/cards/Xiangling.png");
+        ImageIcon cardXiangling = new ImageIcon(cXianglingSmall);
+        cXiangling.setIcon(cardXiangling);
+        cXiangling.setSize(132,158);
+        cXiangling.setLocation(10,1030);
+    }                                      
+
+    private void cXianglingMouseClicked(java.awt.event.MouseEvent evt) {                                        
+        cardPane.setVisible(false);
+        URL ncXiangling = GUI.class.getResource("/namecards/Xiangling.png");
+        ImageIcon Xiangling = new ImageIcon(ncXiangling);
+        bAscencion.setIcon(Xiangling);
+        charSelected.setText("Xiangling");
+    }                                       
+
+    private void cXiaoMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        URL cXiaoBig = GUI.class.getResource("/cards/Xiao Big.png");
+        ImageIcon cardXiao = new ImageIcon(cXiaoBig);
+        cXiao.setIcon(cardXiao);
+        cXiao.setSize(147,175);
+        cXiao.setLocation(142,1022);
+    }                                  
+
+    private void cXiaoMouseExited(java.awt.event.MouseEvent evt) {                                  
+        URL cXiaoSmall = GUI.class.getResource("/cards/Xiao.png");
+        ImageIcon cardXiao = new ImageIcon(cXiaoSmall);
+        cXiao.setIcon(cardXiao);
+        cXiao.setSize(132,158);
+        cXiao.setLocation(150,1030);
+    }                                 
+
+    private void cXiaoMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        cardPane.setVisible(false);
+        URL ncXiao = GUI.class.getResource("/namecards/Xiao.png");
+        ImageIcon Xiao = new ImageIcon(ncXiao);
+        bAscencion.setIcon(Xiao);
+        charSelected.setText("Xiao");
+    }                                  
+
+    private void cXingqiuMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cXingqiuBig = GUI.class.getResource("/cards/Xingqiu Big.png");
+        ImageIcon cardXingqiu = new ImageIcon(cXingqiuBig);
+        cXingqiu.setIcon(cardXingqiu);
+        cXingqiu.setSize(147,175);
+        cXingqiu.setLocation(282,1022);
+    }                                     
+
+    private void cXingqiuMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cXingqiuSmall = GUI.class.getResource("/cards/Xingqiu.png");
+        ImageIcon cardXingqiu = new ImageIcon(cXingqiuSmall);
+        cXingqiu.setIcon(cardXingqiu);
+        cXingqiu.setSize(132,158);
+        cXingqiu.setLocation(290,1030);
+    }                                    
+
+    private void cXingqiuMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncXingqiu = GUI.class.getResource("/namecards/Xingqiu.png");
+        ImageIcon Xingqiu = new ImageIcon(ncXingqiu);
+        bAscencion.setIcon(Xingqiu);
+        charSelected.setText("Xingqiu");
+    }                                     
+
+    private void cXinyanMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cXinyanBig = GUI.class.getResource("/cards/Xinyan Big.png");
+        ImageIcon cardXinyan = new ImageIcon(cXinyanBig);
+        cXinyan.setIcon(cardXinyan);
+        cXinyan.setSize(147,175);
+        cXinyan.setLocation(422,1022);
+    }                                    
+
+    private void cXinyanMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cXinyanSmall = GUI.class.getResource("/cards/Xinyan.png");
+        ImageIcon cardXinyan = new ImageIcon(cXinyanSmall);
+        cXinyan.setIcon(cardXinyan);
+        cXinyan.setSize(132,158);
+        cXinyan.setLocation(430,1030);
+    }                                   
+
+    private void cXinyanMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncXinyan = GUI.class.getResource("/namecards/Xinyan.png");
+        ImageIcon Xinyan = new ImageIcon(ncXinyan);
+        bAscencion.setIcon(Xinyan);
+        charSelected.setText("Xinyan");
+    }                                    
+
+    private void cYanfeiMouseEntered(java.awt.event.MouseEvent evt) {                                     
+        URL cYanfeiBig = GUI.class.getResource("/cards/Yanfei Big.png");
+        ImageIcon cardYanfei = new ImageIcon(cYanfeiBig);
+        cYanfei.setIcon(cardYanfei);
+        cYanfei.setSize(147,175);
+        cYanfei.setLocation(562,1022);
+    }                                    
+
+    private void cYanfeiMouseExited(java.awt.event.MouseEvent evt) {                                    
+        URL cYanfeiSmall = GUI.class.getResource("/cards/Yanfei.png");
+        ImageIcon cardYanfei = new ImageIcon(cYanfeiSmall);
+        cYanfei.setIcon(cardYanfei);
+        cYanfei.setSize(132,158);
+        cYanfei.setLocation(570,1030);
+    }                                   
+
+    private void cYanfeiMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        cardPane.setVisible(false);
+        URL ncYanfei = GUI.class.getResource("/namecards/Yanfei.png");
+        ImageIcon Yanfei = new ImageIcon(ncYanfei);
+        bAscencion.setIcon(Yanfei);
+        charSelected.setText("Yanfei");
+    }                                    
+
+    private void cYoimiyaMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cYoimiyaBig = GUI.class.getResource("/cards/Yoimiya Big.png");
+        ImageIcon cardYoimiya = new ImageIcon(cYoimiyaBig);
+        cYoimiya.setIcon(cardYoimiya);
+        cYoimiya.setSize(147,175);
+        cYoimiya.setLocation(2,1192);
+    }                                     
+
+    private void cYoimiyaMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cYoimiyaSmall = GUI.class.getResource("/cards/Yoimiya.png");
+        ImageIcon cardYoimiya = new ImageIcon(cYoimiyaSmall);
+        cYoimiya.setIcon(cardYoimiya);
+        cYoimiya.setSize(132,158);
+        cYoimiya.setLocation(10,1200);
+    }                                    
+
+    private void cYoimiyaMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncYoimiya = GUI.class.getResource("/namecards/Yoimiya.png");
+        ImageIcon Yoimiya = new ImageIcon(ncYoimiya);
+        bAscencion.setIcon(Yoimiya);
+        charSelected.setText("Yoimiya");
+    }                                     
+
+    private void cZhongliMouseEntered(java.awt.event.MouseEvent evt) {                                      
+        URL cZhongliBig = GUI.class.getResource("/cards/Zhongli Big.png");
+        ImageIcon cardZhongli = new ImageIcon(cZhongliBig);
+        cZhongli.setIcon(cardZhongli);
+        cZhongli.setSize(147,175);
+        cZhongli.setLocation(142,1192);
+    }                                     
+
+    private void cZhongliMouseExited(java.awt.event.MouseEvent evt) {                                     
+        URL cZhongliSmall = GUI.class.getResource("/cards/Zhongli.png");
+        ImageIcon cardZhongli = new ImageIcon(cZhongliSmall);
+        cZhongli.setIcon(cardZhongli);
+        cZhongli.setSize(132,158);
+        cZhongli.setLocation(150,1200);
+    }                                    
+
+    private void cZhongliMouseClicked(java.awt.event.MouseEvent evt) {                                      
+        cardPane.setVisible(false);
+        URL ncZhongli = GUI.class.getResource("/namecards/Zhongli.png");
+        ImageIcon Zhongli = new ImageIcon(ncZhongli);
+        bAscencion.setIcon(Zhongli);
+        charSelected.setText("Zhongli");
+    }                                     
+
+    private void bDogeMouseClicked(java.awt.event.MouseEvent evt) {                                   
+        lDogeText.setVisible(true);
+        
+        try {
+            URL defaultSound = getClass().getResource("/resources/Bop.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(defaultSound);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start( );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }                                  
+
+    private void bDogeMousePressed(java.awt.event.MouseEvent evt) {                                   
+        URL buttonSmall = GUI.class.getResource("/resources/Button Small.png");
+        ImageIcon buttonS = new ImageIcon(buttonSmall);
+        bDoge.setIcon(buttonS);
+        bDoge.setSize(155,23);
+        bDoge.setLocation(385,192);
+        
+        lArrow.setLocation(380, 200);
+    }                                  
+
+    private void bDogeMouseReleased(java.awt.event.MouseEvent evt) {                                    
+        URL buttonLarge = GUI.class.getResource("/resources/Button.png");
+        ImageIcon buttonL = new ImageIcon(buttonLarge);
+        bDoge.setIcon(buttonL);
+        bDoge.setSize(169,25);
+        bDoge.setLocation(380,190);
+        
+        lArrow.setLocation(375, 198);
+    }                                   
+
+    private void bDogeMouseEntered(java.awt.event.MouseEvent evt) {                                   
+        lArrow.setVisible(true);
+    }                                  
+
+    private void bDogeMouseExited(java.awt.event.MouseEvent evt) {                                  
+        lArrow.setVisible(false);
+    }                                 
+
+    /**
+     * @param args the command line arguments
+     * @throws java.lang.Exception
+     */
+    public static void main(String args[]) throws Exception {        
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new GUI().setVisible(true);
+            } catch (Exception ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }    
+
+    // Variables declaration - do not modify                     
+    private javax.swing.JPanel Ascencion;
+    private javax.swing.JLabel CharAddRoll;
+    private javax.swing.JLabel CharMegaPity;
+    private javax.swing.JLabel CharMegaReset;
+    private javax.swing.JLabel CharMiniPity;
+    private javax.swing.JLabel CharMiniReset;
+    private javax.swing.JLabel CharReset;
+    private javax.swing.JLabel CharSet;
+    private javax.swing.JLabel CharTotal;
+    private javax.swing.JPanel Info;
+    private javax.swing.JPanel Menu;
+    private javax.swing.JPanel Rolls;
+    private javax.swing.JLabel StAddRoll;
+    private javax.swing.JLabel StMegaPity;
+    private javax.swing.JLabel StMegaReset;
+    private javax.swing.JLabel StMiniPity;
+    private javax.swing.JLabel StMiniReset;
+    private javax.swing.JLabel StReset;
+    private javax.swing.JLabel StSet;
+    private javax.swing.JLabel StTotal;
+    private javax.swing.JPanel Tabs;
+    private javax.swing.JLabel WeapAddRoll;
+    private javax.swing.JLabel WeapMegaPity;
+    private javax.swing.JLabel WeapMegaReset;
+    private javax.swing.JLabel WeapMiniPity;
+    private javax.swing.JLabel WeapMiniReset;
+    private javax.swing.JLabel WeapReset;
+    private javax.swing.JLabel WeapSet;
+    private javax.swing.JLabel WeapTotal;
+    private javax.swing.JPanel Weapons;
+    private javax.swing.JLabel bAscencion;
+    private javax.swing.JButton bChar;
+    private javax.swing.JLabel bDoge;
+    private javax.swing.JLabel bInfo;
+    private javax.swing.JButton bList;
+    private javax.swing.JLabel bRolls;
+    private javax.swing.JLabel bSplash;
+    private javax.swing.JButton bTalents;
+    private javax.swing.JLabel bWeapons;
+    private javax.swing.JLabel cAlbedo;
+    private javax.swing.JLabel cAmber;
+    private javax.swing.JLabel cAyaka;
+    private javax.swing.JLabel cBarbara;
+    private javax.swing.JLabel cBeidou;
+    private javax.swing.JLabel cBennett;
+    private javax.swing.JLabel cChongyun;
+    private javax.swing.JLabel cDiluc;
+    private javax.swing.JLabel cDiona;
+    private javax.swing.JLabel cEula;
+    private javax.swing.JLabel cFischl;
+    private javax.swing.JLabel cGanyu;
+    private javax.swing.JLabel cHuTao;
+    private javax.swing.JLabel cJean;
+    private javax.swing.JLabel cKaeya;
+    private javax.swing.JLabel cKazuha;
+    private javax.swing.JLabel cKeqing;
+    private javax.swing.JLabel cKlee;
+    private javax.swing.JLabel cLisa;
+    private javax.swing.JLabel cMona;
+    private javax.swing.JLabel cNingguang;
+    private javax.swing.JLabel cNoelle;
+    private javax.swing.JLabel cQiqi;
+    private javax.swing.JLabel cRazor;
+    private javax.swing.JLabel cRosaria;
+    private javax.swing.JLabel cSayu;
+    private javax.swing.JLabel cSucrose;
+    private javax.swing.JLabel cTartaglia;
+    private javax.swing.JLabel cTraveler;
+    private javax.swing.JLabel cVenti;
+    private javax.swing.JLabel cXiangling;
+    private javax.swing.JLabel cXiao;
+    private javax.swing.JLabel cXingqiu;
+    private javax.swing.JLabel cXinyan;
+    private javax.swing.JLabel cYanfei;
+    private javax.swing.JLabel cYoimiya;
+    private javax.swing.JLabel cZhongli;
+    private javax.swing.JLabel cardBackground;
+    private javax.swing.JScrollPane cardPane;
+    private javax.swing.JComboBox<String> charList;
+    private javax.swing.JLabel charSelected;
+    private javax.swing.JLabel infoChar;
+    private javax.swing.JLabel infoTalents;
+    private javax.swing.JLabel lArrow;
+    private javax.swing.JLabel lAscencion;
+    private javax.swing.JLabel lBoss;
+    private javax.swing.JLabel lChunk;
+    private javax.swing.JLabel lCommon1;
+    private javax.swing.JLabel lCommon2;
+    private javax.swing.JLabel lCommon3;
+    private javax.swing.JLabel lDoge;
+    private javax.swing.JLabel lDogeText;
+    private javax.swing.JLabel lFragment;
+    private javax.swing.JLabel lGemstone;
+    private javax.swing.JLabel lInfo;
+    private javax.swing.JLabel lRolls;
+    private javax.swing.JLabel lSliver;
+    private javax.swing.JLabel lSpecialty;
+    private javax.swing.JLabel lTalent1;
+    private javax.swing.JLabel lTalent2;
+    private javax.swing.JLabel lTalent3;
+    private javax.swing.JLabel lTalent4;
+    private javax.swing.JLabel lTalent5;
+    private javax.swing.JLabel lWeapons;
+    private javax.swing.JPanel pAscencion;
+    private javax.swing.JPanel pCards;
+    private javax.swing.JPanel pInfo;
+    private javax.swing.JPanel pRolls;
+    private javax.swing.JSlider sPhase;
+    // End of variables declaration                   
+}
