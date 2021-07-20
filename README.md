@@ -1,5 +1,5 @@
 # Ascension
-Genshin Impact application for farm management, planning and record keeping
+Genshin Impact application for farm management, planning and record keeping.
 
 <img src="https://user-images.githubusercontent.com/87685418/126262736-eac64444-9d2b-4da5-929b-6f90e147915b.png" width="49%" height="49%"> <img src="https://user-images.githubusercontent.com/87685418/126262745-0881d3a5-80a5-4fed-9dcf-a0a7d733572b.png" width="49%" height="49%"> 
 
