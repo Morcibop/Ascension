@@ -21,10 +21,6 @@ Basic tab with some information regarding the costs of leveling up a character, 
 
 Players can keep track of their rolls from the different banners available in the game, and use the different buttons to reset either the 4☆ Pity or the 5☆ Pity, they can reset the counter all together and set them up manually.
 
-
-
-
-
 # F.A.Q
 
 Q: Can you get banned for using this app?
