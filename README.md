@@ -58,7 +58,6 @@ A: Pressing F5 makes the application be Always On Top. In order for this to work
 **Q: How do I contribute?**
 
 A: If you encounter with an issue, you can always send a bug report or suggestions [here](https://github.com/Morcibop/Ascension/issues)
-
 #  
 Thanks for reading and we hope that you find this app useful! If you do and would like to show some support, you can always buy us a coffee ["here"](https://ko-fi.com/morcibop).
 
